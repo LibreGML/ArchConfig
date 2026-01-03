@@ -27,14 +27,14 @@
 
 "custom/file_manager": {
 	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/WaybarScripts.sh --files",
+	"on-click": "thunar",
 	"tooltip": true,
 	"tooltip-format": "File Manager",
 },
 
 "custom/tty": {
 	"format": " ",
-	"on-click": "$HOME/.config/hypr/scripts/WaybarScripts.sh --term",
+	"on-click": "kitty",
 	"tooltip": true,
 	"tooltip-format": "Launch Terminal",
 },
