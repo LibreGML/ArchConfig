@@ -361,6 +361,9 @@ alias sls='ls -a'
 alias sduo='sudo'
 
 
+# 屏幕取色
+alias pickcolor='hyprpicker -a'
+alias pickrgb='hyprpicker -a -f rgb'
 
 
 
