@@ -24,7 +24,12 @@
 	"tooltip": true,
 	"tooltip-format": "Hyprpicker",
 },
-
+"custom/screenshot": {
+	"format": "👁️",
+	"on-click": "$HOME/.config/hypr/scripts/ScreenShot.sh --swappy",
+	"tooltip": true,
+	"tooltip-format": "ScreenShot",
+},
 "custom/file_manager": {
 	"format": " ",
 	"on-click": "thunar",
