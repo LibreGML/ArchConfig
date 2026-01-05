@@ -1,5 +1,3 @@
-/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
-
 // ### DEFAULT Laptop  - Top ### //
 {
 "include": [
@@ -28,6 +26,10 @@
 	"custom/playerctl",
 	"custom/separator#blank_2",
 	"hyprland/window",
+	"custom/separator#blank",
+	"custom/hyprpicker",
+	"custom/separator#blank",
+	"custom/screenshot",
 	],
 
 "modules-center": [
