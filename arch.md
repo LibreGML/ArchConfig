@@ -239,9 +239,20 @@ sudo efibootmgr --create \
     --unicode 'root=UUID=fbdcbdc6-7ea8-467d-8c17-627ebf55995a rw rootflags=subvol=@,noatime initrd=\initramfs-linux-cachyos-rc.img quiet 8250.nr_uarts=0 module.sig_enforce=0 zswap.enabled=0 nowatchdog loglevel=0 tpm_tis.force=0 tpm_tis.interrupts=0 pcie_aspm=force mitigations=off' 
 ```
 
+6. 
+```bash
+sudo tee /etc/mkinitcpio.conf > /dev/null << 'INITRD'
+MODULES=()
+BINARIES=()
+FILES=()
+HOOKS=(base systemd autodetect modconf kms sd-vconsole block filesystems fsck)
+COMPRESSION="zstd"
+COMPRESSION_OPTIONS="-1"
+INITRD
+```
 
-
-创建成功后，`efibootmgr`查看是否创建，然后重启进入UEFI调整顺序，将ArchFast放在最前面。
+7. `sudo mkinitcpio -P`
+8. `efibootmgr`查看是否创建，然后重启进入UEFI调整顺序，将ArchFast放在最前面。
 
 
 #### 安全配置
