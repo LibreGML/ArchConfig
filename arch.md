@@ -34,7 +34,7 @@
 ---
 #### 系统初始化
 
-1. 重启后进入tty1，先`rmmod pcspkr`root为账户名，登录后联网: `systemctl enable --now NetworkManager`设置网络管理器开机自启，禁用systemd-networkd `sudo systemctl disable systemd-networkd && sudo systemctl disable systemd-networkd-wait-online`, 然后`nmcli dev wifi list `用于显示附近的 Wi-Fi ，`nmcli dev wifi connect "Wi-Fi名" password "网络密码"`联网，然后ping个地址测试。
+1. 重启后进入tty1，先`rmmod pcspkr`root为账户名，登录后联网: `systemctl enable --now NetworkManager`设置网络管理器开机自启，禁用systemd-networkd `sudo systemctl disable systemd-networkd && sudo systemctl disable systemd-networkd-wait-online`, 在`sudo systemctl disable NetworkManager-wait-online.service && sudo systemctl mask NetworkManager-wait-online.service`,然后`nmcli dev wifi list `用于显示附近的 Wi-Fi ，`nmcli dev wifi connect "Wi-Fi名" password "网络密码"`联网，然后ping个地址测试。
 2. `pacman -Syyu`，更新整个系统
 3. 增加普通用户:`useradd -m -G wheel -s /bin/bash tzgml`，`passwd tzgml`设置密码，更改sudo设置`sudo nvim /etc/sudoers`，把`%wheel ALL=(ALL:ALL) NOPASSWD: ALL`和`%sudo ALL=(ALL) NOPASSWD: ALL`和`ALL ALL=(ALL) NOPASSWD: ALL`改成上述模样并取消注释，。然后`su tzgml`切换到普通用户。
 4. 配置pacman，`sudo nvim /etc/pacman.conf`，去掉color注释开启彩色输出，然后`CleanMethod = KeepCurrent`减少缓存包保留，`ParallelDownloads = 20`开启并行下载, `SigLevel= Never`禁止校验签名， 最后去掉`[multilib]`那两行的注释开启32位库支持，末尾添加archlinuxcn源，最后别忘`pacman -Syyu`:
@@ -189,6 +189,7 @@ compression-algorithm = zstd
 - `sudo systemctl start systemd-zram-setup@zram0.service`
 -  `zramctl` 查看是否开启。
 
+`sudo btrfs filesystem defragment -r -v -czstd /` 透明压缩。
 
 
 #### tty显示中文
