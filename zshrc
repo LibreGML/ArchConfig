@@ -368,6 +368,7 @@ alias pickrgb='hyprpicker -a -f rgb'
 
 
 # 安全配置
+alias rm="/usr/local/bin/safe-rm"
 sudo() {
    
     local all_args="$*"

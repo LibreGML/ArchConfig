@@ -1,0 +1,40 @@
+{
+  "editor.fontFamily": "Fira Code",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorBlinking": "smooth",
+  "editor.tokenColorCustomizations": {},
+  "explorer.confirmDelete": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.formatOnPaste": true,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.colorTheme": "Dainty – Dark+ Reimagined",
+  "powermode.shake.intensity": 0,
+  "powermode.enabled": true,
+  "powermode.shake.enabled": false,
+  "update.mode": "manual",
+  "debug.onTaskErrors": "debugAnyway",
+  "git.autofetch": true,
+  "workbench.iconTheme": "a-file-icon-vscode",
+  "workbench.startupEditor": "none",
+  "workbench.productIconTheme": "a-file-icon-vscode-product-icon-theme",
+  "files.autoSave": "onWindowChange",
+  "editor.aiStats.enabled": true,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "900",
+  "editor.cursorWidth": 3,
+  "editor.fontSize": 15,
+  "editor.codeActions.triggerOnFocusChange": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "Lingma.aI Chat.mcpToolsInAgentMode": true,
+  "Lingma.aI Chat.webToolsInAsk/AgentMode": "Auto-execute",
+  "vscode_custom_css.imports": [
+  
+    "file:///home/tzgml/.vscode/extensions/30d98f9b2.neovide-cursor-1.0.1/neovide-cursor.js"
+  ],
+  "workbench.colorCustomizations": {
+    "editorCursor.foreground": "#45c1ff"
+  },
+  "backgroundCover.imagePath": "/home/tzgml/Pictures/wallpapers/Dynamic-Wallpapers/【哲风壁纸】卧室-夜晚-小新.png"
+}
