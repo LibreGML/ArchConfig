@@ -178,6 +178,7 @@ alias diff='kitten diff'
 alias cat='bat'
 
 #包管理器简化
+alias pac='sudo pacman'
 alias pacman='sudo pacman'
 alias pacs='sudo pacman -S'
 alias pacss='sudo pacman -Ss'
@@ -191,8 +192,9 @@ alias pacqs='sudo pacman -Qs'
 alias pacq='sudo pacman -Q'
 alias pacsi='sudo pacman -Si'
 alias pacr='sudo pacman -R'
-alias pacrns='sudo pacman -Rns'
+alias pacrsn='sudo pacman -Rsn'
 alias pacrscn='sudo pacman -Rscn'
+alias pacall="sudo pacman -S \$(pacman -Qnq) --overwrite /'*/'"
 alias yays='yay -S'
 alias yayss='yay -Ss'
 alias yaysyu='yay -Syu --noconfirm'
