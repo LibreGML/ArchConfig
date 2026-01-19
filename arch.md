@@ -148,8 +148,7 @@ GLFW_IM_MODULE=ibus
 6.  `git clone https://gitee.com/chenweizhen/zsh-autosuggestions.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions`
 7.  `git clone https://gitee.com/mo2/fzf-tab.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab`
 8.  `yay -S pokemon-colorscripts-git`,再`sudo pacman -S fastfetch figlet lolcat eza bat tree httping`
-9. `nvim .zshrc`  ，之后`plugins=(git z zsh-syntax-highlighting zsh-autosuggestions)`
-10. 在复制[我的.zshrc](https://github.com/LibreGML/ArchConfig/blob/master/zshrc)即可。
+9.  再复制[我的.zshrc](https://github.com/LibreGML/ArchConfig/blob/master/zshrc)即可。
 
 
 
