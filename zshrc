@@ -207,7 +207,7 @@ alias yayqs='yay -Qs'
 alias yayq='yay -Q'
 alias yaysi='yay -Si'
 alias yayr='yay -R'
-alias yayrns='yay -Rns'
+alias yayrsn='yay -Rsn'
 alias yayrscn='yay -Rscn'
 
 
