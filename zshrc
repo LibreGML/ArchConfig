@@ -1,6 +1,5 @@
-
+# 设置 ZSH 和主题
 export ZSH="$HOME/.oh-my-zsh"
-
 ZSH_THEME="ys"
 
 plugins=(
@@ -18,10 +17,11 @@ plugins=(
     web-search
 )
 
-source /usr/share/doc/pkgfile/command-not-found.zsh
-source $ZSH/oh-my-zsh.sh
 
-pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+source $ZSH/oh-my-zsh.sh
+{
+  pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+} &|
 
 
 source <(fzf --zsh)
@@ -38,29 +38,34 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
 
-
-## zsh选项
 setopt AUTOCD              # 只输入目录名就可以跳转
 setopt PROMPT_SUBST        # 允许提示词命令替换
 setopt MENU_COMPLETE       # 自动高亮第一个元素的补全按钮
-setopt LIST_PACKED	  # 补全菜单更少的占用空间
+setopt LIST_PACKED         # 补全菜单更少的占用空间
 setopt AUTO_LIST           # 自动列出模棱两可的补全
 setopt COMPLETE_IN_WORD    # 从单词两端补全
-
+setopt cdable_vars
 
 
 command_not_found_handler() {
-	printf "%s%s? 宝宝不要再说胡话了\n" "$acc" "$0" >&2
+    printf "宝宝不要再说胡话了\n" | lolcat
     return 127
 }
 
-function cdls(){cd $1; ls }
+
+function cdls() {
+    builtin cd "$1" && ls
+}
+
+function mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
 
 
 
 
-# 简化命令
-## 目录快速跳转
+
+# 目录快速跳转
 alias ...=../..
 alias ....=../../..
 alias .....=../../../..
@@ -82,7 +87,8 @@ alias yaycache='cd $HOME/.cache/yay/'
 alias config='cd $HOME/.config'
 alias localshare='cd $HOME/.local/share'
 alias localstate='cd $HOME/.local/state'
-## 快速编辑
+
+# 快速编辑配置文件
 alias zshrc='nvim $HOME/.zshrc'
 alias bashrc='nvim $HOME/.bashrc'
 alias kittyconf='nvim $HOME/.config/kitty/kitty.conf'
@@ -93,7 +99,8 @@ alias localeconf='sudo nvim /etc/locale.gen'
 alias systemconf='sudo nvim /etc/systemd/system.conf'
 alias journalconf='sudo nvim /etc/systemd/journald.conf'
 alias journaldconf='sudo nvim /etc/systemd/journald.conf'
-## 快速启动
+
+# 系统服务控制
 alias sysinfo='fastfetch | lolcat && uname -a | lolcat &&  hostnamectl | lolcat && localectl && timedatectl' #显示系统信息
 alias systemctl='sudo systemctl'
 alias sysenable='sudo systemctl enable --now'
@@ -112,14 +119,15 @@ alias sshd='sudo systemctl enable --now sshd'
 alias mysqld='sudo systemctl enable --now mysqld'
 alias tomcatd='sudo systemctl start tomcat10'
 alias mkinitcpio='sudo mkinitcpio'
-## 垃圾清理
+
+# 垃圾清理
 alias journalclean='sudo journalctl --vacuum-size=0M && sudo journalctl --vacuum-time=0s && sudo rm -rf /var/log/*'
 alias cacheclean='sudo sync && sudo sysctl -w vm.drop_caches=3 && sudo rm -rf $HOME/.cache/* && history -c'
 alias npmclean='sudo yarn cache clean && sudo npm cache clean --force && sudo pnpm store prune'
 alias pkgclean='sudo pacman -Scc  --noconfirm && yay -Scc --noconfirm && sudo paccache -rk0'
-alias lnclean='sudo find / -type l ! -exec test -e {} \; -delete'
 alias fileclean='sudo rm -rf ~/.local/share/recently-used.xbel'
-## 其他简化命令
+
+# 其他简化命令
 alias python='py'
 alias exp='export'
 alias h='history'
@@ -153,31 +161,32 @@ alias syu='yay -Syu --noconfirm'
 alias syyu='yay -Syyu --noconfirm'
 alias yyu='yay -Syyu --noconfirm'
 alias yuu='yay -Syuu --noconfirm'
-alias syyu='yay -Syyu --noconfirm'
 alias syuu='yay -Syuu --noconfirm'
-alias getmirrors='echo "北外源：
+alias getmirrors='echo "北外源:
 Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
-清华源 ： Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
-中科大源
+清华源:
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+中科大源:
 Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
-北大源
+北大源:
 Server = https://mirrors.pku.edu.cn/archlinuxcn/$arch
-腾讯云 
+腾讯云: 
 Server = https://mirrors.cloud.tencent.com/archlinuxcn/$arch
-阿里云 
+阿里云: 
 Server = https://mirrors.aliyun.com/archlinuxcn/$arch"'
-alias dusort='du -sh *|sort -nr'
+alias ducks='du -cksh * | sort -hr | head'  # 找出最大的文件/目录
+alias dusort='du -sh * | sort -hr'
 alias dush='du -sh'
 alias chmodall='chmod -R 777 *'
 alias ting='httping'
 
-# kitty终端专用
+# 终端专用工具
 alias catimg='kitten icat'
 alias icat='kitten icat'
 alias diff='kitten diff'
 alias cat='bat'
 
-#包管理器简化
+# 包管理器简化
 alias pac='sudo pacman'
 alias pacman='sudo pacman'
 alias pacs='sudo pacman -S'
@@ -210,8 +219,7 @@ alias yayr='yay -R'
 alias yayrsn='yay -Rsn'
 alias yayrscn='yay -Rscn'
 
-
-# git命令简化
+# Git 命令简化
 alias g='git'
 alias ginit='git init'
 alias gi='git init'
@@ -245,79 +253,53 @@ alias gurl='git remote set-url'
 alias gp='git push'
 alias gpf='git push -f'
 alias gpush='git push'
-alias gpush='git push -f'
 alias gf='git fetch'
 alias gd='git diff'
 alias gpl='git pull'
 alias gl='git pull'
 alias gpull='git pull'
 
-
-# mysql命令简化
+# MySQL 命令简化
 alias mysql='mysql -u root -p'
 alias sqlinit='sudo mysqld --initialize --user=mysql --basedir=/usr --datadir=/var/lib/mysql'
 alias sqlsecure='mysql_secure_installation'
 
 
+if command -v eza >/dev/null 2>&1; then
+    DISABLE_LS_COLORS=true
+    alias ls="eza --color=auto --icons" 
+    alias l='eza -lbah --icons'
+    alias la='eza -labgh --icons'
+    alias ll='eza -lbg --icons'
+    alias lsa='eza -lbagR --icons'
+    alias lst='eza -lTabgh --icons'
+elif command -v exa >/dev/null 2>&1; then
+    DISABLE_LS_COLORS=true
+    alias ls="exa --color=auto --icons" 
+    alias l='exa -lbah --icons'
+    alias la='exa -labgh --icons'
+    alias ll='exa -lbg --icons'
+    alias lsa='exa -lbagR --icons'
+    alias lst='exa -lTabgh --icons'
+else
+    alias ls='ls --color=auto'
+    alias lst='tree -pCsh'
+    alias l='ls -lah'
+    alias la='ls -lAh'
+    alias ll='ls -lh'
+    alias lsa='ls -lah'
+fi
 
 
-# 比ls和cat更好的替代品
-if [[ $(command -v eza) ]] {
-	DISABLE_LS_COLORS=true
-	unset LS_BIN_FILE
-	for i (/bin/ls ${PREFIX}/bin/ls /usr/bin/ls /usr/local/bin/ls) {
-		[[ ! -x ${i} ]] || {
-			local LS_BIN_FILE=${i}
-					break
-				}
-			}
-			[[ -n ${LS_BIN_FILE} ]] || local LS_BIN_FILE=$(whereis ls 2>/dev/null | awk '{print $2}')
-			alias lls=${LS_BIN_FILE} 
-			# lls is the original ls. lls为原版ls
-			alias ls="eza --color=auto --icons" 
-			# Exa is a modern version of ls. eza是一款优秀的ls替代品,拥有更好的文件展示体验,输出结果更快,使用rust编写。
-			alias l='eza -lbah --icons'
-			alias la='eza -labgh --icons'
-			alias ll='eza -lbg --icons'
-			alias lsa='eza -lbagR --icons'
-			alias lst='eza -lTabgh --icons' # 输入lst,将展示类似于tree的树状列表。
-		} else {
-		alias ls='ls --color=auto'
-		alias lst='tree -pCsh'
-		alias l='ls -lah'
-		alias la='ls -lAh'
-		alias ll='ls -lh'
-		alias lsa='ls -lah'
-	}
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat -pp'
+    export BAT_PAGER="less -m -RFQ"
+elif command -v batcat >/dev/null 2>&1; then
+    alias cat='batcat -pp'
+    export BAT_PAGER="less -m -RFQ"
+fi
 
-	set_bat_paper_variable() {
-		unset CAT_BIN_FILE i
-		for i (/bin/cat ${PREFIX}/bin/cat /usr/bin/cat /usr/local/bin/cat) {
-			[[ ! -x ${i} ]] || {
-				local CAT_BIN_FILE=${i}
-							unset i
-							break
-						}
-					}
-					[[ -n ${CAT_BIN_FILE} ]] || local CAT_BIN_FILE=$(whereis cat 2>/dev/null | awk '{print $2}')
-					alias lcat=${CAT_BIN_FILE} 
-					# lcat is the original cat.
-					typeset -g BAT_PAGER="less -m -RFQ" # 输q退出bat的页面视图
-				}
-				# bat是cat的替代品，支持多语言语法高亮。
-				for i (batcat bat) {
-					if [[ $(command -v ${i}) ]] {
-						alias cat="${i} -pp"
-						set_bat_paper_variable
-						break
-					}
-				}
-
-
-
-
-
-## 兼容dos命令
+# 兼容 DOS 命令
 alias md='mkdir -p'
 alias rd='rmdir'
 alias cls='clear'
@@ -351,7 +333,7 @@ alias clip='wl-copy' #把命令输出重定向到剪贴板，x11下是xclip
 alias dos='bash' #bash比喻为dos,zsh比喻为powershell
 alias powershell='zsh'
 
-# 兼容mac命令
+# 兼容 macOS 命令
 alias brew='apt'
 alias open='sh' #mac用来打开软件
 alias xlock='hyprlock -q' # x11下是xlock,但我是hyprland
@@ -362,44 +344,34 @@ alias s='ls -a'
 alias sls='ls -a'
 alias sduo='sudo'
 
-
 # 屏幕取色
 alias pickcolor='hyprpicker -a'
 alias pickrgb='hyprpicker -a -f rgb'
 
-
-
 # 安全配置
-alias rm="/usr/local/bin/safe-rm"
-sudo() {
-   
-    local all_args="$*"
-    if [[ "$all_args" =~ rm\ -[rf]+\ [/\*] ]]; then
-   
-        printf '禁止删除！'
-        return 1
-    fi
-
-    command sudo "$@"
-}
-
-alias chmod='sudo chmod'
-sudo() {
-    if [ "$1" = "chmod" ] && echo "$@" | grep -q "777"; then
-        echo -e "这不安全！"
-        return 1
-    else
+if [ -x "/usr/local/bin/safe-rm" ]; then
+    alias rm="/usr/local/bin/safe-rm"
+    
+    sudo() {
+        local all_args="$*"
+        if [[ "$all_args" =~ rm\ -[rf]+\ [/\*] ]]; then
+            printf '禁止删除！'
+            return 1
+        fi
         command sudo "$@"
-    fi
-}
+    }
+fi
 
+# 添加到 PATH
+export PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
+# 自动补全优化
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+autoload -Uz compinit && compinit
 
-
-
-
+# 显示每日一言
 figlet -f big "        TZGML" | lolcat
 
 # 伪一言
 echo "    每日一言 | Hitokoto 驱动: \n     不自由，毋宁死！ ———— 帕特里克·亨利 于(1775)  " | lolcat
-
