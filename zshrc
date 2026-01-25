@@ -2,6 +2,7 @@
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="ys"
 
+# 启用插件
 plugins=(
     git
     archlinux
@@ -17,18 +18,20 @@ plugins=(
     web-search
 )
 
-
 source $ZSH/oh-my-zsh.sh
+
+# 异步执行启动画面
 {
   pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
 } &|
 
-
+# 初始化 FZF
 source <(fzf --zsh)
 
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+# 历史记录配置
+export HISTFILE=$ZDOTDIR/.zsh_history
+export HISTSIZE=10000
+export SAVEHIST=10000
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
@@ -38,22 +41,27 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
 
-setopt AUTOCD              # 只输入目录名就可以跳转
-setopt PROMPT_SUBST        # 允许提示词命令替换
-setopt MENU_COMPLETE       # 自动高亮第一个元素的补全按钮
-setopt LIST_PACKED         # 补全菜单更少的占用空间
-setopt AUTO_LIST           # 自动列出模棱两可的补全
-setopt COMPLETE_IN_WORD    # 从单词两端补全
-setopt cdable_vars
+# 目录导航和补全增强
+setopt AUTOCD              # 只输入目录名即可跳转
+setopt PROMPT_SUBST        # 允许提示符使用命令替换
+setopt MENU_COMPLETE       # 自动高亮补全菜单的第一个选项
+setopt LIST_PACKED         # 紧凑的补全菜单
+setopt AUTO_LIST           # 自动列出补全选项
+setopt COMPLETE_IN_WORD    # 在单词内部补全
+setopt cdable_vars         # 支持变量作为目录参数
 
-
+# 命令未找到处理器
 command_not_found_handler() {
-    pkgfile $1
-    printf "宝宝不要再说胡话了\n" | lolcat
+    pkgfile "$1" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "耶！！！命令 '$1' 可以在软件包中找到。"
+    else
+        echo "宝宝不要再说胡话了" | lolcat
+    fi
     return 127
 }
 
-
+# 实用函数
 function cdls() {
     builtin cd "$1" && ls
 }
@@ -62,11 +70,7 @@ function mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-
-
-
-
-# 目录快速跳转
+# 高效的目录跳转
 alias ...=../..
 alias ....=../../..
 alias .....=../../../..
@@ -102,7 +106,7 @@ alias journalconf='sudo nvim /etc/systemd/journald.conf'
 alias journaldconf='sudo nvim /etc/systemd/journald.conf'
 
 # 系统服务控制
-alias sysinfo='fastfetch | lolcat && uname -a | lolcat &&  hostnamectl | lolcat && localectl && timedatectl' #显示系统信息
+alias sysinfo='fastfetch | lolcat && uname -a | lolcat && hostnamectl | lolcat && localectl && timedatectl'
 alias systemctl='sudo systemctl'
 alias sysenable='sudo systemctl enable --now'
 alias sysdisable='sudo systemctl disable'
@@ -120,32 +124,27 @@ alias sshd='sudo systemctl enable --now sshd'
 alias mysqld='sudo systemctl enable --now mysqld'
 alias tomcatd='sudo systemctl start tomcat10'
 alias mkinitcpio='sudo mkinitcpio'
+alias dmesg='sudo dmesg'
 
 # 垃圾清理
 alias journalclean='sudo journalctl --vacuum-size=0M && sudo journalctl --vacuum-time=0s && sudo rm -rf /var/log/*'
 alias cacheclean='sudo sync && sudo sysctl -w vm.drop_caches=3 && sudo rm -rf $HOME/.cache/* && history -c'
 alias npmclean='sudo yarn cache clean && sudo npm cache clean --force && sudo pnpm store prune'
-alias pkgclean='sudo pacman -Scc  --noconfirm && yay -Scc --noconfirm && sudo paccache -rk0'
+alias pkgclean='sudo pacman -Scc --noconfirm && yay -Scc --noconfirm && sudo paccache -rk0'
 alias fileclean='sudo rm -rf ~/.local/share/recently-used.xbel'
 
-# 其他简化命令
-alias python='py'
+# 日常工作命令增强
+alias python='python3'
+alias pip='pip3'
 alias exp='export'
 alias h='history'
 alias als='alias'
 alias vport='export http_proxy="http://127.0.0.1:7897" && export https_proxy="http://127.0.0.1:7897" && export all_proxy="socks://127.0.0.1:7897"'
 alias noproxy='unset http_proxy && unset https_proxy && unset all_proxy'
 alias _='sudo '
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
+alias grep='egrep --color=auto -i'
 alias gc1='git clone --recursive --depth=1'
-alias globurl='noglob urlglobber '
-alias grep='grep --color=auto'
 alias vim='nvim'
-alias tp='sudo trash-put'
-alias tpall='sudo trash-put *'
-alias te='sudo trash-empty'
-alias tr='trash-restore'
 alias root='su root'
 alias tzgml='su tzgml'
 alias grubmk='sudo grub-mkconfig -o /boot/grub/grub.cfg'
@@ -155,9 +154,11 @@ alias grubconf='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias checkfcitx='fcitx5-diagnose'
 alias fcitxcheck='fcitx5-diagnose'
-alias kernelversion='/lib/ld-linux-x86-64.so.2 --help'
+alias libhelp='/lib/ld-linux-x86-64.so.2 --help'
 alias btrfszip='sudo btrfs filesystem defragment -r -v -czstd /'
 alias disk='sudo fdisk -l && df -h && lsblk'
+
+# 包管理器简化命令
 alias syu='yay -Syu --noconfirm'
 alias syyu='yay -Syyu --noconfirm'
 alias yyu='yay -Syyu --noconfirm'
@@ -180,95 +181,71 @@ alias dusort='du -sh * | sort -hr'
 alias dush='du -sh'
 alias chmodall='chmod -R 777 *'
 alias ting='httping'
+alias xlock='hyprlock -p'
 
-# 终端专用工具
+# 终端工具增强
 alias catimg='kitten icat'
 alias icat='kitten icat'
 alias diff='kitten diff'
 alias cat='bat'
 
-# 包管理器简化
+
+# 包管理器简化（分组优化）
+# Pacman 命令
 alias pac='sudo pacman'
-alias pacman='sudo pacman'
 alias pacs='sudo pacman -S'
 alias pacss='sudo pacman -Ss'
 alias pacsyu='sudo pacman -Syu --noconfirm'
 alias pacsyyu='sudo pacman -Syyu --noconfirm'
 alias pacscc='sudo pacman -Scc'
-alias pacu='sudo pacman -U'
-alias pacqdt='sudo pacman -Qdt'
-alias pacqi='sudo pacman -Qi'
-alias pacqs='sudo pacman -Qs'
-alias pacq='sudo pacman -Q'
-alias pacsi='sudo pacman -Si'
 alias pacr='sudo pacman -R'
 alias pacrsn='sudo pacman -Rsn'
-alias pacrscn='sudo pacman -Rscn'
-alias pacall="sudo pacman -S \$(pacman -Qnq) --overwrite /'*/'"
+alias pacu='sudo pacman -U'
+alias pacqo='sudo pacman -Qo'
+alias pacsw='sudo pacman -Sw'
+alias pacqs='sudo pacman -Qs'
+alias pacqi='sudo pacman -Qi'
+alias pacf='sudo pacman -F'
+alias downgrade='sudo downgrade'
+
+
+# Yay 命令
 alias yays='yay -S'
 alias yayss='yay -Ss'
 alias yaysyu='yay -Syu --noconfirm'
 alias yaysyyu='yay -Syyu --noconfirm'
 alias yayscc='yay -Scc'
-alias yayu='yay -U'
-alias yayqdt='yay -Qdt'
-alias yayqi='yay -Qi'
-alias yayqs='yay -Qs'
-alias yayq='yay -Q'
-alias yaysi='yay -Si'
 alias yayr='yay -R'
 alias yayrsn='yay -Rsn'
-alias yayrscn='yay -Rscn'
+alias installed='yay -Qeq' #列出显式安装的包名称（包括AUR）
 
-# Git 命令简化
+function fileinpkg(){
+    yay -Qlq "$1" | grep -v '/$' | xargs -r du -h | sort -h
+}
+
+function installfrom(){
+    if [ -z "$1" ]; then
+        return 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "File $1 不存在啊宝宝"
+        return 1
+    fi
+
+    grep -v '^#' "$1" | grep -v '^[[:space:]]*$' | xargs yay -S --needed --noconfirm
+}
+
+# Git 命令增强
 alias g='git'
-alias ginit='git init'
-alias gi='git init'
-alias gs='git status' 
-alias gstatus='git status'
-alias ga='git add'
-alias gadd='git add'
-alias gc='git commit -m'
-alias gcommit='git commit -m'
-alias glog='git log' 
-alias gb='git branch'
-alias gbranch='git branch'
-alias gbm='git branch -m'
-alias gbranchm='git branch -m'
-alias gbranchd='git branch -d'
-alias gbranchD='git branch -D'
-alias gck='git checkout'
-alias gcheckout='git checkout'
-alias gcheckoutb='git checkout -b'
-alias gam='git commit -am'
-alias gcam='git commit -am'
-alias gcommitam='git commit -am'
-alias gm='git merge'
-alias gmerge='git merge'
-alias clone='git clone'
-alias gclone='git clone'
-alias gr='git remote'
-alias grv='git remote -v'
-alias gra='git remote add'
-alias gurl='git remote set-url'
-alias gp='git push'
-alias gpf='git push -f'
-alias gpush='git push'
-alias gf='git fetch'
-alias gd='git diff'
-alias gpl='git pull'
-alias gl='git pull'
-alias gpull='git pull'
-alias pushremote='git push origin master'
-alias pullremote='git pull origin master'
-alias gitcommit='git add . && git commit -m "update"'
+alias pushremote='git add . && git commit -m "update" && git pull origin master && git push origin master'
 
-# MySQL 命令简化
+# MySQL 命令
 alias mysql='mysql -u root -p'
 alias sqlinit='sudo mysqld --initialize --user=mysql --basedir=/usr --datadir=/var/lib/mysql'
 alias sqlsecure='mysql_secure_installation'
 
-
+# 文件管理增强
 if command -v eza >/dev/null 2>&1; then
     DISABLE_LS_COLORS=true
     alias ls="eza --color=auto --icons" 
@@ -294,55 +271,18 @@ else
     alias lsa='ls -lah'
 fi
 
-
+# Bat 配置
 if command -v bat >/dev/null 2>&1; then
     alias cat='bat -pp'
     export BAT_PAGER="less -m -RFQ"
+    export BAT_THEME="GitHub"
 elif command -v batcat >/dev/null 2>&1; then
     alias cat='batcat -pp'
     export BAT_PAGER="less -m -RFQ"
+    export BAT_THEME="GitHub"
 fi
 
-# 兼容 DOS 命令
-alias md='mkdir -p'
-alias rd='rmdir'
-alias cls='clear'
-alias dir='ls'
-alias copy='cp'
-alias move='mv' #移动
-alias ren='mv'  #改名
-alias del='rm -i'
-alias taskkill='kill'
-alias ipconfig='ifconfig'
-alias netsh='ifconfig' #设置网络，如ip,dns
-alias tasklist='top' #查看进程列表
-alias sh='start' #启动可执行文件
-alias net='sudo systemctl' #服务控制
-alias wintype='cat' #win下的type命令
-alias shutdown='poweroff' # 关机
-alias chkdsk='sudo fdisk -l && df -h && lsblk'  #查看磁盘状态
-alias format='mkfs' #格式化设备
-alias xcopy='cp -r' #连带着子目录复制
-alias attrib='chattr'  #+i 让文件怎么都不会被修改或删除，取消则-i
-alias defrag='e4defrag' #磁盘碎片整理
-alias subst='ln -s' #win下是将一个磁盘映射到另一个磁盘的某个目录访问
-alias doskey='alias'  #win下doskey还可以重写命令，编辑历史命令列表
-alias winfc='diff'  #win下的fc,比较文件不同
-alias comp='diff'  #win下交互式比较文件
-alias systeminfo='fastfetch | lolcat && uname -a | lolcat &&  hostnamectl | lolcat' #显示系统信息
-alias notepad='nvim' #win下记事本
-alias icacls='chmod' #win下可以更改权限和所有者
-alias perfmon='glances' #系统性能监视工具，可以替换成其他工具
-alias clip='wl-copy' #把命令输出重定向到剪贴板，x11下是xclip
-alias dos='bash' #bash比喻为dos,zsh比喻为powershell
-alias powershell='zsh'
-
-# 兼容 macOS 命令
-alias brew='apt'
-alias open='sh' #mac用来打开软件
-alias xlock='hyprlock -q' # x11下是xlock,但我是hyprland
-
-# 防止输错
+# 防止常见错误
 alias sl='ls -a'
 alias s='ls -a'
 alias sls='ls -a'
@@ -359,20 +299,26 @@ if [ -x "/usr/local/bin/safe-rm" ]; then
     sudo() {
         local all_args="$*"
         if [[ "$all_args" =~ rm\ -[rf]+\ [/\*] ]]; then
-            printf '禁止删除！'
+            printf '禁止删除根目录！\n'
             return 1
         fi
         command sudo "$@"
     }
 fi
 
-# 添加到 PATH
-export PATH="$PATH:$HOME/bin:$HOME/.local/bin"
+# 添加路径
+export PATH="$PATH:$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin"
 
-# 自动补全优化
+# 补全优化
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*:*:*:*:descriptions' format '%F{blue}%B--- %d ---%b%f'
+zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}%B--- %d (errors: %e) ---%b%f'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' verbose yes
 autoload -Uz compinit && compinit
+
+
 
 # 显示每日一言
 figlet -f big "        TZGML" | lolcat

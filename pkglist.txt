@@ -42,14 +42,11 @@ hyprland
 hyprlock
 hyprpicker
 hyprpolkitagent
-illogical-impulse-audio
-illogical-impulse-backlight
 illogical-impulse-basic
 imagemagick
 intellij-idea-community-edition
 inxi
 kmscon
-kvantum
 less
 lib32-mesa
 lib32-vulkan-radeon
@@ -79,7 +76,6 @@ noto-fonts-extra
 npm
 ntfs-3g
 nwg-displays
-nwg-look
 os-prober
 otf-font-awesome
 pacman
