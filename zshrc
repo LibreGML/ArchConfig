@@ -1,3 +1,7 @@
+# ==========================================
+# OH-MY-ZSH 配置区域
+# ==========================================
+
 # 设置 ZSH 和主题
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="ys"
@@ -20,6 +24,10 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# ==========================================
+# 启动画面配置区域
+# ==========================================
+
 # 异步执行启动画面
 {
   pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
@@ -28,7 +36,10 @@ source $ZSH/oh-my-zsh.sh
 # 初始化 FZF
 source <(fzf --zsh)
 
-# 历史记录配置
+# ==========================================
+# 历史记录配置区域
+# ==========================================
+
 export HISTFILE=$ZDOTDIR/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST=10000
@@ -41,6 +52,10 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
 
+# ==========================================
+# 目录导航与补全配置区域
+# ==========================================
+
 # 目录导航和补全增强
 setopt AUTOCD              # 只输入目录名即可跳转
 setopt PROMPT_SUBST        # 允许提示符使用命令替换
@@ -49,6 +64,10 @@ setopt LIST_PACKED         # 紧凑的补全菜单
 setopt AUTO_LIST           # 自动列出补全选项
 setopt COMPLETE_IN_WORD    # 在单词内部补全
 setopt cdable_vars         # 支持变量作为目录参数
+
+# ==========================================
+# 命令未找到处理器区域
+# ==========================================
 
 # 命令未找到处理器
 command_not_found_handler() {
@@ -61,6 +80,10 @@ command_not_found_handler() {
     return 127
 }
 
+# ==========================================
+# 实用函数定义区域
+# ==========================================
+
 # 实用函数
 function cdls() {
     builtin cd "$1" && ls
@@ -69,6 +92,10 @@ function cdls() {
 function mkcd() {
     mkdir -p "$1" && cd "$1"
 }
+
+# ==========================================
+# 目录跳转快捷方式区域
+# ==========================================
 
 # 高效的目录跳转
 alias ...=../..
@@ -92,6 +119,13 @@ alias yaycache='cd $HOME/.cache/yay/'
 alias config='cd $HOME/.config'
 alias localshare='cd $HOME/.local/share'
 alias localstate='cd $HOME/.local/state'
+alias pacmanvar='cd /var/cache/pacman/pkg/'
+alias hypr='cd $HOME/.config/hypr'
+alias wabardir='cd $HOME/.config/waybar'
+
+# ==========================================
+# 配置文件编辑快捷方式区域
+# ==========================================
 
 # 快速编辑配置文件
 alias zshrc='nvim $HOME/.zshrc'
@@ -105,11 +139,16 @@ alias systemconf='sudo nvim /etc/systemd/system.conf'
 alias journalconf='sudo nvim /etc/systemd/journald.conf'
 alias journaldconf='sudo nvim /etc/systemd/journald.conf'
 
+# ==========================================
+# 系统服务控制区域
+# ==========================================
+
 # 系统服务控制
 alias sysinfo='fastfetch | lolcat && uname -a | lolcat && hostnamectl | lolcat && localectl && timedatectl'
 alias systemctl='sudo systemctl'
+alias sysctl='sudo sysctl'
 alias sysenable='sudo systemctl enable --now'
-alias sysdisable='sudo systemctl disable'
+alias sysdisable='sudo systemctl disable --now'
 alias sysstart='sudo systemctl start'
 alias sysrestart='sudo systemctl restart'
 alias sysstop='sudo systemctl stop'
@@ -126,6 +165,10 @@ alias tomcatd='sudo systemctl start tomcat10'
 alias mkinitcpio='sudo mkinitcpio'
 alias dmesg='sudo dmesg'
 
+# ==========================================
+# 垃圾清理配置区域
+# ==========================================
+
 # 垃圾清理
 alias journalclean='sudo journalctl --vacuum-size=0M && sudo journalctl --vacuum-time=0s && sudo rm -rf /var/log/*'
 alias cacheclean='sudo sync && sudo sysctl -w vm.drop_caches=3 && sudo rm -rf $HOME/.cache/* && history -c'
@@ -133,8 +176,13 @@ alias npmclean='sudo yarn cache clean && sudo npm cache clean --force && sudo pn
 alias pkgclean='sudo pacman -Scc --noconfirm && yay -Scc --noconfirm && sudo paccache -rk0'
 alias fileclean='sudo rm -rf ~/.local/share/recently-used.xbel'
 
+# ==========================================
+# 日常工作命令增强区域
+# ==========================================
+
 # 日常工作命令增强
 alias python='python3'
+alias py='python3'
 alias pip='pip3'
 alias exp='export'
 alias h='history'
@@ -143,8 +191,7 @@ alias vport='export http_proxy="http://127.0.0.1:7897" && export https_proxy="ht
 alias noproxy='unset http_proxy && unset https_proxy && unset all_proxy'
 alias _='sudo '
 alias grep='egrep --color=auto -i'
-alias gc1='git clone --recursive --depth=1'
-alias vim='nvim'
+alias vim='sudo nvim'
 alias root='su root'
 alias tzgml='su tzgml'
 alias grubmk='sudo grub-mkconfig -o /boot/grub/grub.cfg'
@@ -157,40 +204,41 @@ alias fcitxcheck='fcitx5-diagnose'
 alias libhelp='/lib/ld-linux-x86-64.so.2 --help'
 alias btrfszip='sudo btrfs filesystem defragment -r -v -czstd /'
 alias disk='sudo fdisk -l && df -h && lsblk'
-
-# 包管理器简化命令
-alias syu='yay -Syu --noconfirm'
-alias syyu='yay -Syyu --noconfirm'
-alias yyu='yay -Syyu --noconfirm'
-alias yuu='yay -Syuu --noconfirm'
-alias syuu='yay -Syuu --noconfirm'
-alias getmirrors='echo "北外源:
-Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
-清华源:
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
-中科大源:
-Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
-北大源:
-Server = https://mirrors.pku.edu.cn/archlinuxcn/$arch
-腾讯云: 
-Server = https://mirrors.cloud.tencent.com/archlinuxcn/$arch
-阿里云: 
-Server = https://mirrors.aliyun.com/archlinuxcn/$arch"'
+alias 777='sudo chmod 777'
+alias 755='sudo chmod 755'
+alias 644='sudo chmod 644'
+alias chmodx='sudo chmod +x'
+alias chmodall='sudo chmod -R 777 *'
+alias changeuser='sudo chown -R $USER:$USER'
 alias ducks='du -cksh * | sort -hr | head'  # 找出最大的文件/目录
 alias dusort='du -sh * | sort -hr'
 alias dush='du -sh'
-alias chmodall='chmod -R 777 *'
 alias ting='httping'
 alias xlock='hyprlock -p'
 
-# 终端工具增强
-alias catimg='kitten icat'
-alias icat='kitten icat'
-alias diff='kitten diff'
-alias cat='bat'
 
+# ==========================================
+# 系统信息查询区域
+# ==========================================
 
-# 包管理器简化（分组优化）
+alias topcpu='ps aux | sort -rnk3 | head -10'  # 查看占用CPU最高的进程
+alias topmem='ps aux | sort -rnk4 | head -10'  # 查看占用内存最高的进程
+alias publicip='curl ipinfo.io/ip'                 # 查看公网IP
+alias localip="ip route get 1.1.1.1 | awk '{print \$7}'"  # 查看本地IP
+alias findfile='find . -type f -name'          # 在当前目录查找文件
+alias finddir='find . -type d -name'           # 在当前目录查找目录
+alias findtext='grep -r -i -n --color=always'  # 在文件中递归搜索文本
+alias week='date +%V'                          # 查看今年第几周
+alias mktar='tar -cvf'                         # 创建 tar 归档
+alias mktargz='tar -czvf'                      # 创建 tar.gz 归档
+alias mktarbz2='tar -cjvf'                     # 创建 tar.bz2 归档
+alias uptime='uptime -p'                               # 显示运行时间
+alias useradd='sudo useradd -m -G wheel,video,audio -s /bin/zsh'  # 添加用户并创建主目录、加入常用组、设置默认shell
+
+# ==========================================
+# 包管理器简化命令区域 - Pacman
+# ==========================================
+
 # Pacman 命令
 alias pac='sudo pacman'
 alias pacs='sudo pacman -S'
@@ -208,6 +256,9 @@ alias pacqi='sudo pacman -Qi'
 alias pacf='sudo pacman -F'
 alias downgrade='sudo downgrade'
 
+# ==========================================
+# 包管理器简化命令区域 - Yay
+# ==========================================
 
 # Yay 命令
 alias yays='yay -S'
@@ -236,14 +287,27 @@ function installfrom(){
     grep -v '^#' "$1" | grep -v '^[[:space:]]*$' | xargs yay -S --needed --noconfirm
 }
 
+# ==========================================
+# Git 命令增强区域
+# ==========================================
+
 # Git 命令增强
 alias g='git'
 alias pushremote='git add . && git commit -m "update" && git pull origin master && git push origin master'
+alias gc1='git clone --recursive --depth=1'
+
+# ==========================================
+# MySQL 命令区域
+# ==========================================
 
 # MySQL 命令
 alias mysql='mysql -u root -p'
 alias sqlinit='sudo mysqld --initialize --user=mysql --basedir=/usr --datadir=/var/lib/mysql'
 alias sqlsecure='mysql_secure_installation'
+
+# ==========================================
+# 文件管理增强区域
+# ==========================================
 
 # 文件管理增强
 if command -v eza >/dev/null 2>&1; then
@@ -271,6 +335,10 @@ else
     alias lsa='ls -lah'
 fi
 
+# ==========================================
+# Bat 配置区域
+# ==========================================
+
 # Bat 配置
 if command -v bat >/dev/null 2>&1; then
     alias cat='bat -pp'
@@ -282,15 +350,28 @@ elif command -v batcat >/dev/null 2>&1; then
     export BAT_THEME="GitHub"
 fi
 
+# ==========================================
+# 错误修正配置区域
+# ==========================================
+
 # 防止常见错误
 alias sl='ls -a'
 alias s='ls -a'
 alias sls='ls -a'
 alias sduo='sudo'
+alias systecmtl='sudo systemctl'
+
+# ==========================================
+# 屏幕取色配置区域
+# ==========================================
 
 # 屏幕取色
 alias pickcolor='hyprpicker -a'
 alias pickrgb='hyprpicker -a -f rgb'
+
+# ==========================================
+# 安全配置区域
+# ==========================================
 
 # 安全配置
 if [ -x "/usr/local/bin/safe-rm" ]; then
@@ -306,8 +387,9 @@ if [ -x "/usr/local/bin/safe-rm" ]; then
     }
 fi
 
-# 添加路径
-export PATH="$PATH:$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin"
+# ==========================================
+# 补全优化配置区域
+# ==========================================
 
 # 补全优化
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -318,6 +400,188 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 autoload -Uz compinit && compinit
 
+# ==========================================
+# 终端工具增强区域
+# ==========================================
+
+# 终端工具增强
+alias catimg='kitten icat'
+alias icat='kitten icat'
+alias diff='kitten diff'
+alias cat='bat'
+
+# ==========================================
+# 其他工具命令区域
+# ==========================================
+
+# 包管理器简化命令
+alias syu='yay -Syu --noconfirm'
+alias syyu='yay -Syyu --noconfirm'
+alias yyu='yay -Syyu --noconfirm'
+alias yuu='yay -Syuu --noconfirm'
+alias syuu='yay -Syuu --noconfirm'
+alias getmirrors='echo "
+清华源:
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+中科大源:
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+北大源:
+Server = https://mirrors.pku.edu.cn/archlinuxcn/$arch
+腾讯云: 
+Server = https://mirrors.cloud.tencent.com/archlinuxcn/$arch
+阿里云: 
+Server = https://mirrors.aliyun.com/archlinuxcn/$arch"'
+
+
+# ==========================================
+# 个人配置
+# ==========================================
+
+
+
+
+# 莹轩历转换函数
+yingyear() {
+    local current_year=$(date +%Y)
+    local current_month=$((10#$(date +%m)))  
+    local current_day=$((10#$(date +%d)))    
+
+    local L=0
+    for ((y=2020; y < current_year; y++)); do
+        if (( (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0) )); then
+            ((L++))
+        fi
+    done
+
+    local months=(31 28 31 30 31 30 31 31 30 31 30 31)  #
+    if (( (current_year % 4 == 0 && current_year % 100 != 0) || (current_year % 400 == 0) )); then
+        months[1]=29  
+    fi
+    local S=0
+    for ((m=1; m < current_month; m++)); do
+        ((S += months[m-1])) 
+    done
+
+    local delta_T=$(( 
+        (current_year - 2020) * 365 + 
+        L + 
+        S + 
+        (current_day - 1) 
+    ))
+
+    local V=$(echo "scale=10; 1895 + ($delta_T * 18) / 365" | bc)
+
+    local Y莹=$(echo "$V" | awk -F '.' '{print $1}')  
+    local f=$(echo "scale=10; $V - $Y莹" | bc)     
+
+    local f_times_12=$(echo "scale=10; $f * 12" | bc)
+    local month_int=$(echo "$f_times_12" | awk -F '.' '{print $1}')  
+    local M莹=$((month_int + 1))  
+
+    local remainder=$(echo "scale=10; $f_times_12 - $month_int" | bc)  
+    local remainder_times_30=$(echo "scale=10; $remainder * 30" | bc)
+    local day_int=$(echo "$remainder_times_30" | awk -F '.' '{print $1}')  
+    local D莹=$((day_int + 1))  
+
+ 
+    echo "今天是莹轩${Y莹}年${M莹}月${D莹}日！"
+}
+
+
+
+# 莹轩历转换函数
+calyingyear() {
+    echo "🌟 莹轩历转换器 🌟"
+    echo "请输入公历日期（将转换为莹轩历日期）"
+    
+    while true; do
+        read "?请输入年份（例如 2025）: " year
+        if [[ "$year" =~ ^[0-9]{4}$ ]] && (( year >= 2020 )); then
+            break
+        else
+            echo "❌ 请输入有效的四位公历年份（≥2020）"
+        fi
+    done
+    
+    while true; do
+        read "?请输入月份（1-12）: " month
+        if [[ "$month" =~ ^[0-9]+$ ]] && (( month >= 1 && month <= 12 )); then
+            break
+        else
+            echo "❌ 请输入有效的月份（1-12）"
+        fi
+    done
+    
+    while true; do
+        read "?请输入日期（1-31）: " day
+        if [[ "$day" =~ ^[0-9]+$ ]] && (( day >= 1 && day <= 31 )); then
+            case $month in
+                1|3|5|7|8|10|12) max_day=31 ;;
+                4|6|9|11) max_day=30 ;;
+                2)
+                    if (( (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) )); then
+                        max_day=29
+                    else
+                        max_day=28
+                    fi
+                    ;;
+            esac
+            
+            if (( day <= max_day )); then
+                break
+            else
+                echo "❌ $year年$month月只有$max_day天，请重新输入"
+            fi
+        else
+            echo "❌ 请输入有效的日期（1-31）"
+        fi
+    done
+    
+    month=$((10#$month))
+    day=$((10#$day))
+    
+    local L=0
+    for ((y=2020; y < year; y++)); do
+        if (( (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0) )); then
+            ((L++))
+        fi
+    done
+    
+    local months=(31 28 31 30 31 30 31 31 30 31 30 31)
+    if (( (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) )); then
+        months[1]=29
+    fi
+    
+    local S=0
+    for ((m=1; m < month; m++)); do
+        ((S += months[m-1]))
+    done
+    
+    local delta_T=$(( (year - 2020) * 365 + L + S + (day - 1) ))
+    
+    local total_years=$(( 1895 + (delta_T * 18) / 365 ))
+    local remainder=$(( (delta_T * 18) % 365 ))
+    
+    local total_months=$(( (remainder * 12) / 365 ))
+    local month_remainder=$(( (remainder * 12) % 365 ))
+    
+    local day_in_month=$(( (month_remainder * 30) / 365 + 1 ))
+    local M莹=$(( total_months + 1 ))
+    local D莹=$(( day_in_month ))
+    
+    if (( M莹 > 12 )); then
+        ((total_years += M莹 / 12))
+        ((M莹 = M莹 % 12))
+    fi
+    if (( D莹 > 30 )); then
+        ((D莹 = 30))
+    fi
+    
+    echo "────────────────"
+    echo "📜 莹轩历日期: ${total_years}年${M莹}月${D莹}日"
+    echo "────────────────"
+}
+
 
 
 # 显示每日一言
@@ -325,3 +589,12 @@ figlet -f big "        TZGML" | lolcat
 
 # 伪一言
 echo "    每日一言 | Hitokoto 驱动: \n     不自由，毋宁死！ ———— 帕特里克·亨利 于(1775)  " | lolcat
+
+
+
+
+
+
+
+
+
