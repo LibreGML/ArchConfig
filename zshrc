@@ -258,6 +258,9 @@ alias gd='git diff'
 alias gpl='git pull'
 alias gl='git pull'
 alias gpull='git pull'
+alias pushremote='git push origin master'
+alias pullremote='git pull origin master'
+alias gitcommit='git add . && git commit -m "update"'
 
 # MySQL 命令简化
 alias mysql='mysql -u root -p'
