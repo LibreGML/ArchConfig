@@ -48,6 +48,7 @@ setopt cdable_vars
 
 
 command_not_found_handler() {
+    pkgfile $1
     printf "宝宝不要再说胡话了\n" | lolcat
     return 127
 }
