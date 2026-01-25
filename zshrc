@@ -484,7 +484,7 @@ yingyear() {
     local D莹=$((day_int + 1))  
 
  
-    echo "今天是莹轩${Y莹}年${M莹}月${D莹}日！"
+    echo "   今天是莹轩${Y莹}年${M莹}月${D莹}日！"
 }
 
 
@@ -584,14 +584,13 @@ calyingyear() {
 
 
 
+
 # 显示每日一言
 figlet -f big "        TZGML" | lolcat
 
+yingyear | lolcat
 # 伪一言
-echo "    每日一言 | Hitokoto 驱动: \n     不自由，毋宁死！ ———— 帕特里克·亨利 于(1775)  " | lolcat
-
-
-
+echo " \n   每日一言 | Hitokoto 驱动: \n     不自由，毋宁死！ ———— 帕特里克·亨利 于(1775)  " | lolcat
 
 
 
