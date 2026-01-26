@@ -40,6 +40,23 @@ require("lazy").setup({
 		"RRethy/vim-illuminate",
 	},
 	{
+		"mg979/vim-visual-multi",
+		lazy = false,
+		keys = {
+			{ "<C-n>", mode = { "n", "i" }, desc = "Select next occurrence" },
+		},
+		init = function()
+			vim.g.VM_maps = {
+				["Find Under"] = "<C-d>",    
+				["Find Subword Under"] = "<C-d>",   
+				["Select All"] = "<C-a>",      
+				["Add Cursor Down"] = "<C-Down>",   
+				["Add Cursor Up"] = "<C-Up>",    
+			}
+			vim.g.VM_leader = "\\" 
+		end,
+	},
+	{
 		"L3MON4D3/LuaSnip",
 		build = vim.fn.has("win32") ~= 0 and "make install_jsregexp" or nil,
 		dependencies = {
