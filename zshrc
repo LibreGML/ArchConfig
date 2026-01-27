@@ -227,7 +227,6 @@ alias ting='httping'
 alias xlock='hyprlock -p'
 alias 电量='upower -i $(upower -e | grep BAT) | grep percentage'
 
-
 # ==========================================
 # 系统信息查询区域
 # ==========================================
@@ -254,8 +253,8 @@ alias useradd='sudo useradd -m -G wheel,video,audio -s /bin/zsh'  # 添加用户
 alias pac='sudo pacman'
 alias pacs='sudo pacman -S'
 alias pacss='sudo pacman -Ss'
-alias pacsyu='sudo pacman -Syu --noconfirm'
-alias pacsyyu='sudo pacman -Syyu --noconfirm'
+alias pacsyu='sudo pacman -Syu --noconfirm --disable-download-timeout'
+alias pacsyyu='sudo pacman -Syyu --noconfirm --disable-download-timeout'
 alias pacscc='sudo pacman -Scc'
 alias pacr='sudo pacman -R'
 alias pacrsn='sudo pacman -Rsn'
@@ -266,6 +265,8 @@ alias pacqs='sudo pacman -Qs'
 alias pacqi='sudo pacman -Qi'
 alias pacf='sudo pacman -F'
 alias downgrade='sudo downgrade'
+# 重新安装所有已安装的包
+alias reinstallall="sudo pacman -S --overwrite='*' $(pacman -Qqn)"
 
 # ==========================================
 # 包管理器简化命令区域 - Yay
@@ -274,8 +275,8 @@ alias downgrade='sudo downgrade'
 # Yay 命令
 alias yays='yay -S'
 alias yayss='yay -Ss'
-alias yaysyu='yay -Syu --noconfirm'
-alias yaysyyu='yay -Syyu --noconfirm'
+alias yaysyu='yay -Syu --noconfirm --disable-download-timeout'
+alias yaysyyu='yay -Syyu --noconfirm --disable-download-timeout'
 alias yayscc='yay -Scc'
 alias yayr='yay -R'
 alias yayrsn='yay -Rsn'
@@ -426,8 +427,8 @@ alias cat='bat'
 # ==========================================
 
 # 包管理器简化命令
-alias syu='yay -Syu --noconfirm'
-alias syyu='yay -Syyu --noconfirm'
+alias syu='yay -Syu --noconfirm --disable-download-timeout'
+alias syyu='yay -Syyu --noconfirm --disable-download-timeout'
 alias yyu='yay -Syyu --noconfirm'
 alias yuu='yay -Syuu --noconfirm'
 alias syuu='yay -Syuu --noconfirm'
