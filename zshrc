@@ -40,7 +40,7 @@ source <(fzf --zsh)
 # 历史记录配置区域
 # ==========================================
 
-export HISTFILE=$ZDOTDIR/.zsh_history
+export HISTFILE=$HOME/.zsh_history
 export HISTSIZE=10000
 export SAVEHIST=10000
 setopt appendhistory
@@ -71,9 +71,13 @@ setopt cdable_vars         # 支持变量作为目录参数
 
 # 命令未找到处理器
 command_not_found_handler() {
-    pkgfile "$1" 2>/dev/null
-    if [ $? -eq 0 ]; then
-        echo "耶！！！命令 '$1' 可以在软件包中找到。"
+    if command -v pkgfile >/dev/null 2>&1; then
+        pkgfile "$1" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            echo "耶！！！命令 '$1' 可以在软件包中找到。"
+        else
+            echo "宝宝不要再说胡话了" | lolcat
+        fi
     else
         echo "宝宝不要再说胡话了" | lolcat
     fi
@@ -92,6 +96,9 @@ function cdls() {
 function mkcd() {
     mkdir -p "$1" && cd "$1"
 }
+
+
+
 
 # ==========================================
 # 目录跳转快捷方式区域
@@ -122,6 +129,9 @@ alias localstate='cd $HOME/.local/state'
 alias pacmanvar='cd /var/cache/pacman/pkg/'
 alias hypr='cd $HOME/.config/hypr'
 alias wabardir='cd $HOME/.config/waybar'
+alias archconfig='cd $HOME/Mycode/ArchConfig'
+
+
 
 # ==========================================
 # 配置文件编辑快捷方式区域
@@ -215,6 +225,7 @@ alias dusort='du -sh * | sort -hr'
 alias dush='du -sh'
 alias ting='httping'
 alias xlock='hyprlock -p'
+alias 电量='upower -i $(upower -e | grep BAT) | grep percentage'
 
 
 # ==========================================

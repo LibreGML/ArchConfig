@@ -134,73 +134,128 @@ cp -r ArchConfig/nvim ~/.config/
 
 | 快捷键 | 功能 |
 |--------|------|
-| `SUPER` + `Enter` | 打开终端 (kitty) |
-| `SUPER` + `Shift` + `T` | 打开终端 (kitty) |
-| `SUPER` + `Shift` + `F` | 切换浮动模式 |
-| `SUPER` + `Shift` + `A` | 切换所有窗口为浮动模式 |
-| `SUPER` + `F` | 全屏切换 |
-| `SUPER` + `C` | 关闭窗口 |
-| `SUPER` + `Shift` + `Q` | 强制关闭窗口 |
-| `SUPER` + `ALT` + `L` | 切换 Dwindle/Master 布局 |
-| `SUPER` + `Shift` + `M` | 云音乐播放器 |
-| `SUPER` + `W` | 选择壁纸 |
-| `CTRL` + `ALT` + `W` | 随机壁纸 |
-| `SUPER` + `Shift` + `W` | 壁纸特效 |
+| `WIN` + `C` | 关闭当前窗口 |
+| `WIN` + `F` | 打开文件浏览器 |
+| `WIN` + `Up` | 退出全屏模式 |
+| `WIN` + `Down` | 进入全屏模式 |
+| `WIN` + `Shift` + `Left` | 向左缩小窗口宽度50像素 |
+| `WIN` + `Shift` + `Right` | 向右扩大窗口宽度50像素 |
+| `WIN` + `Shift` + `Up` | 向上缩小窗口高度50像素 |
+| `WIN` + `Shift` + `Down` | 向下扩大窗口高度50像素 |
+| `WIN` + `Ctrl` + `Left` | 将窗口向左移动 |
+| `WIN` + `Ctrl` + `Right` | 将窗口向右移动 |
+| `WIN` + `Ctrl` + `Up` | 将窗口向上移动 |
+| `WIN` + `Ctrl` + `Down` | 将窗口向下移动 |
 
-### 系统控制
+### 工作区管理
 
 | 快捷键 | 功能 |
 |--------|------|
-| `CTRL` + `ALT` + `U` | 切换浮动/平铺模式 |
-| `CTRL` + `ALT` + `O` | 退出界面 (wlogout) |
-| `SUPER` + `ALT` + `C` | 计算器 (qalculate) |
-| `SUPER` + `ALT` + `R` | 刷新 Waybar, SwayNC, Rofi |
-| `SUPER` + `ALT` + `E` | Rofi 表情符号 |
-| `SUPER` + `S` | Rofi 搜索 (Bing) |
-| `SUPER` + `V` | 剪贴板管理器 (cliphist) |
-| `SHIFT` + `ALT` | 切换键盘布局 |
-| `SUPER` + `Shift` + `N` | 打开通知面板 (swaync) |
-| `SUPER` + `B` | 显示/隐藏状态栏 |
-| `SUPER` + `CTRL` + `B` | 选择 Waybar 样式 |
-| `SUPER` + `ALT` + `B` | 选择 Waybar 布局 |
+| `Ctrl` + `数字键1-0` | 切换到对应工作区 (1-10) |
+| `WIN` + `Shift` + `数字键1-0` | 将当前窗口移动到指定工作区 |
+| `WIN` + `Shift` + `[` | 将当前窗口移动到上一个工作区 |
+| `WIN` + `Shift` + `]` | 将当前窗口移动到下一个工作区 |
+| `WIN` + `Ctrl` + `数字键1-0` | 将当前窗口静默移动到指定工作区 |
+| `WIN` + `Ctrl` + `[` | 将当前窗口静默移动到上一个工作区 |
+| `WIN` + `Ctrl` + `]` | 将当前窗口静默移动到下一个工作区 |
+| `Alt` + `鼠标滚轮向上` | 切换到上一个工作区 |
+| `Alt` + `鼠标滚轮向下` | 切换到下一个工作区 |
+| `Alt` + `Tab` | 切换到下一个工作区 |
+| `WIN` + `Right` | 切换到下一个工作区 |
 
 ### 应用启动器
 
 | 快捷键 | 功能 |
 |--------|------|
-| `SUPER` + `D` | 打开应用启动器 (rofi) |
-| `SUPER` + `SUPER_L` | 打开应用启动器 (rofi) |
-| `SUPER` + `Shift` + `F` | 打开文件管理器 (thunar) |
-| `SUPER` + `Shift` + `Q` | QQ |
-| `SUPER` + `Shift` + `E` | Firefox Nightly |
-| `SUPER` + `Shift` + `W` | 微信 |
-| `SUPER` + `Shift` + `C` | VSCode |
+| `WIN` + `WIN_L` | 打开应用启动器 (rofi) |
+| `WIN` + `D` | 打开应用启动器 (rofi) |
+| `WIN` + `T` | 打开终端 (kitty) |
+| `WIN` + `E` | 打开文件管理器 (thunar) |
+| `WIN` + `Shift` + `B` | 打开Firefox Nightly浏览器 |
+| `WIN` + `Shift` + `C` | 打开屏幕取色器 (hyprpicker) |
 
-### 系统操作
-
-| 快捷键 | 功能 |
-|--------|------|
-| `CTRL` + `SUPER` + `R` | 重启 |
-| `CTRL` + `SUPER` + `P` | 关机 |
-| `CTRL` + `SUPER` + `L` | 锁屏 (hyprlock) |
-| `CTRL` + `ALT` + `Delete` | 退出 Hyprland |
-| `Print` | 截图 (grim) |
-| `Shift` + `Print` | 区域截图 (grim + slurp) |
-| `Shift` + `S` | 区域截图 (swappy) |
-| `CTRL` + `Print` | 5秒延时截图 |
-| `CTRL` + `SHIFT` + `Print` | 10秒延时截图 |
-| `ALT` + `Print` | 活动窗口截图 |
-| `SUPER` + `K` | 下拉终端 (pypr) |
-| `SUPER` + `Z` | 桌面缩放 (pypr) |
-
-### 其他功能
+### 系统控制
 
 | 快捷键 | 功能 |
 |--------|------|
-| `SUPER` + `Shift` + `B` | 切换模糊效果 |
-| `SUPER` + `Shift` + `G` | 游戏模式 (关闭动画) |
-| `SUPER` + `H` | 快捷键帮助 |
-| `SUPER` + `E` | 查看/编辑配置文件 |
+| `Ctrl` + `Alt` + `Delete` | 退出Hyprland |
+| `Ctrl` + `Alt` + `O` | 打开注销菜单 (wlogout) |
+| `WIN` + `L` | 锁定屏幕 (hyprlock) |
+| `WIN` + `I` | 编辑Hyprland配置文件 |
+| `Ctrl` + `WIN` + `R` | 重启系统 |
+| `Ctrl` + `WIN` + `P` | 关闭系统 |
+
+### 实用功能
+
+| 快捷键 | 功能 |
+|--------|------|
+| `WIN` + `Alt` + `R` | 刷新Waybar、SwayNC、Rofi |
+| `WIN` + `S` | 打开Rofi网络搜索 |
+| `WIN` + `V` | 打开剪贴板管理器 |
+| `WIN` + `Shift` + `N` | 切换通知中心面板 |
+| `WIN` + `K` | 切换下拉终端 (pypr) |
+| `WIN` + `Z` | 切换窗口缩放/聚焦模式 |
+| `WIN` + `B` | 切换状态栏可见性 |
+| `WIN` + `Ctrl` + `B` | 更改状态栏样式 |
+| `WIN` + `Alt` + `B` | 更改状态栏布局 |
+
+### 媒体和音频控制
+
+| 快捷键 | 功能 |
+|--------|------|
+| `XF86AudioRaiseVolume` | 音量增大 |
+| `XF86AudioLowerVolume` | 音量减小 |
+| `XF86AudioMute` | 开关静音 |
+| `XF86AudioMicMute` | 开关麦克风静音 |
+| `XF86AudioPlayPause` | 播放/暂停媒体 |
+| `XF86AudioPause` | 暂停媒体 |
+| `XF86AudioPlay` | 播放媒体 |
+| `XF86AudioNext` | 下一曲 |
+| `XF86AudioPrev` | 上一曲 |
+| `XF86AudioStop` | 停止媒体播放 |
+
+### 屏幕截图
+
+| 快捷键 | 功能 |
+|--------|------|
+| `Shift` + `Print` | 立即截图 |
+| `Ctrl` + `Print` | 截取选定区域 |
+| `WIN` + `Ctrl` + `Print` | 5秒后截图 |
+| `WIN` + `Alt` + `Print` | 10秒后截图 |
+| `Alt` + `Print` | 截取活动窗口 |
+| `WIN` + `Shift` + `S` | 截图并编辑 |
+
+### 壁纸控制
+
+| 快捷键 | 功能 |
+|--------|------|
+| `WIN` + `W` | 选择新壁纸 |
+| `Ctrl` + `Alt` + `W` | 随机更换壁纸 |
+
+### 窗口焦点与特殊操作
+
+| 快捷键 | 功能 |
+|--------|------|
+| `Alt` + `Left` | 将焦点移到左侧窗口 |
+| `Alt` + `Right` | 将焦点移到右侧窗口 |
+| `Alt` + `Up` | 将焦点移到上方窗口 |
+| `Alt` + `Down` | 将焦点移到下方窗口 |
+| `WIN` + `Ctrl` + `D` | 将当前窗口移动到特殊工作区 |
+| `Alt` + `U` | 显示/隐藏特殊工作区 |
+
+### 鼠标与触摸板手势
+
+| 快捷键 | 功能 |
+|--------|------|
+| `Shift` + `鼠标左键` | 移动窗口 |
+| `Shift` + `鼠标右键` | 调整窗口大小 |
+| `三指水平滑动` | 切换工作区 |
+| `三指下滑` | 退出全屏 |
+| `三指上滑` | 进入全屏 |
+| `四指下滑+Ctrl` | 打开终端 |
+| `四指上滑+Ctrl` | 打开文件管理器 |
+| `三指下滑+Alt` | 截图并编辑 |
+| `三指上滑+Alt` | 截图并编辑 |
 
 ## 🤝 贡献
 
