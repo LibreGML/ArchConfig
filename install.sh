@@ -235,6 +235,7 @@ install_core_deps() {
         'gvfs'
         'brightnessctl'
         'unzip'
+        'git-lfs'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
