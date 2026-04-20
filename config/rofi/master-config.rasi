@@ -1,0 +1,233 @@
+/* 主配置文件 1080p 分辨率适配 */
+
+/* ---- 基本配置 ---- */
+
+configuration {
+	font:						"Fira Code SemiBold 12";
+	modi:                       "drun,run,filebrowser";  // 启动模式：桌面应用、运行命令、文件浏览器
+    show-icons:                 true;  // 显示应用程序图标
+    display-drun:               "Apps";  // 桌面应用模式标签名称
+    display-run:                "Run";  // 运行命令模式标签名称
+    display-filebrowser:        "Files";  // 文件浏览器模式标签名称
+    display-window:             "Windows";  // 窗口切换模式标签名称
+	drun-display-format:        "{name}";  // 桌面应用显示格式：仅显示名称
+	hover-select:               true;  // 启用鼠标悬停选择功能
+	me-select-entry:            "MouseSecondary";  // 鼠标右键选择条目
+    me-accept-entry:            "MousePrimary";  // 鼠标左键确认选择
+	window-format:              "{w} · {c} · {t}";  // 窗口显示格式：窗口名 · 类名 · 标题
+	dpi:						1;  // DPI 缩放比例（1 为原始大小）
+}
+
+/* ---- 加载 wallust 颜色主题 ---- */
+// 从 wallust 生成的颜色文件中导入配色方案
+@theme "~/.config/rofi/wallust/colors-rofi.rasi"
+
+/* ---- 全局属性定义 ---- */
+* {
+
+    background-alt:              @selected-active-background;  // 按钮背景色（备用背景）
+    selected:                    @selected-urgent-background;  // 选中项的背景色
+    active:                      @selected-normal-background;  // 激活窗口的颜色
+    urgent:                      @selected;  // 紧急/重要提示颜色（鼠标悬停时等）
+
+    text-selected:               @background;  // 选中状态的文字颜色
+    text-color:                  @foreground;  // 默认文字颜色
+    border-color:                @selected;  // 边框颜色
+}
+
+/* ---- 主窗口设置 ---- */
+window {
+    // 默认属性
+    enabled:                    true;  // 启用窗口
+    fullscreen:                 false;  // 非全屏模式
+    transparency:               "real";  // 使用真实透明效果
+    cursor:                     "default";  // 默认鼠标指针样式
+    spacing:                    0px;  // 内部间距为 0
+    border:                     2px;  // 边框宽度 2 像素
+    border-radius:              50px;  // 圆角半径 50 像素（大圆角设计）
+    location:                   center;  // 窗口位置：屏幕中央
+    anchor:                     center;  // 锚点：中心对齐
+
+    // 样式设置
+    width:                      50%;  // 窗口宽度占屏幕的 50%
+    background-color:           @background;  // 背景颜色（从主题导入）
+}
+
+/* ----- 主容器盒 ----- */
+mainbox {
+	padding:					 20px;  // 内边距 20 像素
+    enabled:                     true;  // 启用容器
+    orientation:                 vertical;  // 垂直布局（子元素从上到下排列）
+    children:                    [ "inputbar", "listbox" ];  // 包含输入栏和列表盒两个子元素
+    background-color:            transparent;  // 透明背景
+}
+
+
+/* ---- 输入栏 ---- */
+inputbar {
+    enabled:                     true;  // 启用输入栏
+    padding:                     30px;  // 内边距 30 像素
+    background-color:            transparent;  // 透明背景
+    border-radius:               25px;  // 圆角半径 25 像素
+    orientation:                 horizontal;  // 水平布局（子元素从左到右排列）
+    children:                    ["entry", "dummy", "mode-switcher" ];  // 包含输入框、占位符、模式切换器
+}
+
+/* ---- 文本输入框 ---- */
+entry {
+    enabled:                     true;  // 启用输入框
+    expand:                      false;  // 不自动扩展宽度
+    width:                       20%;  // 输入框宽度占父容器的 20%
+    padding:                     10px;  // 内边距 10 像素
+    border-radius:               12px;  // 圆角半径 12 像素
+    background-color:            @selected;  // 背景颜色（选中色）
+    text-color:                  @text-selected;  // 文字颜色（选中时的文字色）
+    cursor:                      text;  // 鼠标指针显示为文本输入样式
+    placeholder:                 "搜一下吧宝宝～ ";  // 占位提示文字（可爱的提示语）
+    placeholder-color:           inherit;  // 占位符颜色继承父元素
+}
+
+/* ---- 列表容器盒 ---- */
+listbox {
+    spacing:                     10px;  // 子元素间距 10 像素
+    padding:                     10px;  // 内边距 10 像素
+    background-color:            transparent;  // 透明背景
+    orientation:                 vertical;  // 垂直布局
+    children:                    [ "message", "listview" ];  // 包含消息区和列表视图
+}
+
+/* ---- 列表视图 ---- */
+listview {
+    enabled:                     true;  // 启用列表视图
+    columns:                     2;  // 显示 2 列（网格布局）
+    lines:                       6;  // 显示 6 行
+    cycle:                       true;  // 启用循环导航（到底部后可回到顶部）
+    dynamic:                     true;  // 动态调整列表高度
+    scrollbar:                   true;  // 显示滚动条
+    layout:                      vertical;  // 垂直排列布局
+    reverse:                     false;  // 不反向排列（从上到下）
+    fixed-height:                false;  // 高度不固定（可自适应）
+    fixed-columns:               true;  // 列宽固定
+    spacing:                     10px;  // 条目间距 10 像素
+    background-color:            transparent;  // 透明背景
+
+//  适配 rofi 主题
+    border:                      0px;  // 无边框
+}
+
+/* ---- 占位符元素 ---- */
+dummy {
+    expand:                      true;  // 自动扩展填充剩余空间
+    background-color:            transparent;  // 透明背景
+}
+
+/* ---- 模式切换器 ---- */
+mode-switcher{
+    enabled:                     true;  // 启用模式切换器
+    spacing:                     10px;  // 按钮间距 10 像素
+    background-color:            transparent;  // 透明背景
+}
+button {
+    width:                       5%;  // 按钮宽度占父容器的 5%
+    padding:                     12px;  // 内边距 12 像素
+    border-radius:               12px;  // 圆角半径 12 像素
+    background-color:            @text-selected;  // 背景颜色（与选中文字同色）
+    text-color:                  @text-color;  // 文字颜色（默认文字色）
+    cursor:                      pointer;  // 鼠标指针显示为手型
+}
+button selected {
+    background-color:            @selected;  // 选中状态的背景色
+    text-color:                  @text-selected;  // 选中状态的文字色
+}
+
+/* ---- 滚动条 ---- */
+scrollbar {
+    width:        4px ;  // 滚动条宽度 4 像素（细滚动条）
+    border:       0;  // 无边框
+    handle-color: @border-color;  // 滑块颜色（与边框同色）
+    handle-width: 8px ;  // 滑块宽度 8 像素
+    padding:      0;  // 无内边距
+}
+
+/* ---- 列表元素 ---- */
+element {
+    enabled:                     true;  // 启用元素
+    spacing:                     10px;  // 元素间距 10 像素
+    padding:                     10px;  // 内边距 10 像素
+    border-radius:               12px;  // 圆角半径 12 像素
+    background-color:            transparent;  // 透明背景
+    cursor:                      pointer;  // 鼠标指针显示为手型
+}
+
+element normal.normal {
+    background-color:            inherit;  // 普通状态：背景色继承
+    text-color:                  inherit;  // 普通状态：文字色继承
+}
+element normal.urgent {
+    background-color:            @urgent;  // 紧急状态：使用紧急背景色
+    text-color:                  @foreground;  // 紧急状态：使用默认文字色
+}
+element normal.active {
+    background-color:            @active;  // 激活状态：使用激活背景色
+    text-color:                  @foreground;  // 激活状态：使用默认文字色
+}
+
+element selected.normal {
+    background-color:            @selected;  // 选中状态：使用选中背景色
+    text-color:                  @text-selected;  // 选中状态：使用选中文字色
+}
+element selected.urgent {
+    background-color:            @urgent;  // 选中 + 紧急：使用紧急背景色
+    text-color:                  @text-selected;  // 选中 + 紧急：使用选中文字色
+}
+element selected.active {
+    background-color:            @urgent;  // 选中 + 激活：使用紧急背景色
+    text-color:                  @text-selected;  // 选中 + 激活：使用选中文字色
+}
+// 适配 rofi 主题样式
+element alternate.normal {
+    background-color:            transparent;  // 交替行（偶数行）：透明背景
+    text-color:                  inherit;  // 交替行：继承文字色
+}
+element alternate.urgent {
+    background-color:            transparent;  // 交替行紧急状态：透明背景
+    text-color:                  inherit;  // 交替行紧急状态：继承文字色
+}
+element alternate.active {
+    background-color:            transparent;  // 交替行激活状态：透明背景
+    text-color:                  inherit;  // 交替行激活状态：继承文字色
+}
+element-icon {
+    background-color:            transparent;  // 图标背景透明
+    text-color:                  inherit;  // 图标颜色继承
+    size:                        36px;  // 图标尺寸 36x36 像素
+    cursor:                      inherit;  // 鼠标指针继承父元素
+}
+element-text {
+    font:						"Fira Code SemiBold 12";  // 字体：Fira Code 半粗体 12 号
+    background-color:            transparent;  // 文字背景透明
+    text-color:                  inherit;  // 文字颜色继承
+    cursor:                      inherit;  // 鼠标指针继承父元素
+    vertical-align:              0.5;  // 垂直居中对齐（50% 位置）
+    horizontal-align:            0.0;  // 水平左对齐（0% 位置）
+}
+
+/* ---- 消息区域 ---- */
+message {
+    background-color:            transparent;  // 透明背景
+    border:                      0px;  // 无边框
+}
+textbox {
+    padding:                     12px;  // 内边距 12 像素
+    border-radius:               10px;  // 圆角半径 10 像素
+    background-color:            @background-alt;  // 背景色（备用背景色）
+    text-color:                  @background;  // 文字色（与主背景同色，形成对比）
+    vertical-align:              0.5;  // 垂直居中对齐
+    horizontal-align:            0.0;  // 水平左对齐
+}
+error-message {
+    padding:                     12px;  // 内边距 12 像素
+    border-radius:               20px;  // 圆角半径 20 像素（更大的圆角）
+    background-color:            @background-alt;  // 背景色（备用背景色）
+    text-color:                  @background;  // 文字色（与主背景同色）
+}

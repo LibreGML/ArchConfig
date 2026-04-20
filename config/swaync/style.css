@@ -1,0 +1,380 @@
+@define-color noti-border-color #00D4FF;
+@define-color noti-bg rgba(10, 15, 30, 0.9);
+@define-color noti-bg-alt rgba(5, 10, 25, 0.95);
+@define-color noti-bg-hover rgba(30, 40, 70, 0.8);
+@define-color text-color #E0F7FF;
+
+@define-color accent-blue #0066FF;
+@define-color accent-cyan #00D4FF;
+@define-color dark-layer rgba(0, 5, 15, 0.85);
+
+/* ========== 全局样式 ========== */
+* {
+  font-family: "JetBrains Mono Nerd Font";
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* ========== 通知行 ========== */
+.control-center .notification-row:focus,
+.control-center .notification-row:hover {
+  opacity: 1;
+  background: @noti-bg-hover;
+  border-radius: 10px;
+  border-left: 3px solid @accent-cyan;
+}
+
+.notification-row {
+  outline: none;
+}
+
+.notification {
+  background: @noti-bg;
+  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 10px;
+  border: 2px solid @noti-border-color;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.15);
+}
+
+/* ========== 操作按钮 ========== */
+.notification-default-action {
+  margin: 0;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.close-button {
+  background: linear-gradient(135deg, #0066ff, #00d4ff);
+  color: #000a1a;
+  text-shadow: none;
+  padding: 0;
+  border-radius: 10px;
+  margin-top: 5px;
+  margin-right: 5px;
+  font-weight: 900;
+  border: 1px solid #00d4ff;
+}
+
+.close-button:hover {
+  box-shadow: 0 0 8px #00d4ff;
+  background: linear-gradient(135deg, #00d4ff, #0066ff);
+  transition: all 0.15s ease-in-out;
+  border: 1px solid #ffffff;
+}
+
+.notification-action {
+  border: 1px solid @noti-border-color;
+  border-top: none;
+  border-radius: 10px;
+  background: @dark-layer;
+}
+
+.notification-default-action:hover,
+.notification-action:hover {
+  color: #ffffff;
+  background: rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+}
+
+.notification-default-action {
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.notification-default-action:not(:only-child) {
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+.notification-action:first-child {
+  border-bottom-left-radius: 10px;
+  background: @dark-layer;
+}
+
+.notification-action:last-child {
+  border-bottom-right-radius: 10px;
+  background: rgba(5, 10, 30, 0.9);
+}
+
+/* ========== 快速回复区域 ========== */
+.inline-reply {
+  margin-top: 8px;
+}
+
+.inline-reply-entry {
+  background: rgba(0, 10, 25, 0.9);
+  color: @text-color;
+  caret-color: @accent-cyan;
+  border: 1px solid @accent-blue;
+  border-radius: 10px;
+}
+
+.inline-reply-button {
+  font-size: 0.5rem;
+  margin-left: 4px;
+  background: rgba(0, 20, 40, 0.9);
+  border: 1px solid @accent-blue;
+  border-radius: 10px;
+  color: @text-color;
+}
+
+.inline-reply-button:disabled {
+  background: rgba(0, 10, 20, 0.5);
+  color: #6688aa;
+  border: 1px solid transparent;
+}
+
+.inline-reply-button:hover {
+  background: rgba(0, 100, 255, 0.3);
+  border-color: @accent-cyan;
+}
+
+/* ========== 通知内容 ========== */
+.body-image {
+  margin-top: 6px;
+  color: @text-color;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.summary {
+  font-size: 1rem;
+  font-weight: bold;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+}
+
+.time {
+  font-size: 1rem;
+  font-weight: bold;
+  background: transparent;
+  color: #88ccff;
+  text-shadow: none;
+  margin-right: 18px;
+}
+
+.body {
+  font-size: 1rem;
+  font-weight: bold;
+  background: transparent;
+  color: #cceeff;
+  text-shadow: none;
+}
+
+/* ========== 控制中心主体 ========== */
+.control-center {
+  background: rgba(5, 10, 25, 0.8);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: @text-color;
+  border-radius: 24px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 16px;
+}
+
+.control-center-list {
+  background: transparent;
+}
+
+.control-center-list-placeholder {
+  opacity: 0.5;
+  color: #6688aa;
+}
+
+.floating-notifications {
+  background: transparent;
+}
+
+.blank-window {
+  background: rgba(0, 20, 40, 0.3);
+}
+
+/* ========== 小部件样式 ========== */
+.widget-title {
+  color: #ffffff;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 20, 40, 0.9),
+    rgba(0, 10, 30, 0.9)
+  );
+  padding: 3px 6px;
+  margin: 5px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border-left: 3px solid @accent-cyan;
+}
+
+.widget-title > button {
+  font-size: 0.75rem;
+  color: #88ddff;
+  border-radius: 10px;
+  background: rgba(0, 30, 60, 0.7);
+  border: 1px solid @accent-blue;
+}
+
+/* 清除按钮 */
+.widget-title > button:hover {
+  background: #00d4ff;
+  color: #001122;
+  border-color: #ffffff;
+}
+
+/* DND 开关 */
+.widget-dnd {
+  background: rgba(0, 15, 35, 0.9);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  font-size: 0.5rem;
+  color: #88ccff;
+  border: 1px solid rgba(0, 100, 200, 0.5);
+}
+
+.widget-dnd > switch {
+  border-radius: 10px;
+  border: 1px solid #0066cc;
+  background: rgba(0, 50, 100, 0.7);
+}
+
+.widget-dnd > switch:checked {
+  background: linear-gradient(90deg, #0066ff, #00aaff);
+  border: 1px solid #00d4ff;
+}
+
+.widget-dnd > switch slider {
+  background: rgba(0, 20, 40, 0.9);
+  border-radius: 10px;
+  border: 1px solid #0088ff;
+}
+
+.widget-dnd > switch:checked slider {
+  background: rgba(0, 10, 30, 0.9);
+  border-radius: 10px;
+  border: 1px solid #00d4ff;
+}
+
+/* 标签 */
+.widget-label {
+  margin: 5px;
+}
+
+.widget-label > label {
+  font-size: 1rem;
+  color: #aaddff;
+}
+
+/* 媒体播放器 */
+.widget-mpris {
+  color: #cceeff;
+  background: rgba(0, 20, 40, 0.8);
+  padding: 3px 6px;
+  margin: 5px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+}
+
+.widget-mpris > box > button {
+  border-radius: 10px;
+  color: #00d4ff;
+  background: rgba(0, 30, 60, 0.7);
+  border: 1px solid rgba(0, 150, 255, 0.5);
+}
+
+.widget-mpris-player {
+  padding: 3px 6px;
+  margin: 5px;
+}
+
+.widget-mpris-title {
+  font-weight: 100;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.widget-mpris-subtitle {
+  font-size: 0.75rem;
+  color: #88ccff;
+}
+
+/* 按钮网格 */
+.widget-buttons-grid {
+  font-size: large;
+  color: #00aaff;
+  padding: 2px;
+  margin: 5px;
+  border-radius: 10px;
+  background: rgba(0, 15, 35, 0.9);
+  border: 1px solid rgba(0, 100, 200, 0.4);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  margin: 1px;
+  background: rgba(0, 25, 50, 0.8);
+  border-radius: 10px;
+  color: #bbeeff;
+  border: 1px solid rgba(0, 100, 200, 0.3);
+}
+
+/* 单个按钮悬停 */
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: rgba(0, 212, 255, 0.3);
+  color: #ffffff;
+  border-color: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+
+/* 菜单栏 */
+.widget-menubar > box > .menu-button-bar > button {
+  border: none;
+  background: transparent;
+  color: #88ddff;
+}
+
+.topbar-buttons > button {
+  border: none;
+  background: transparent;
+  color: #88ddff;
+}
+
+/* 音量控件 */
+.widget-volume {
+  background: rgba(0, 15, 35, 0.9);
+  padding: 10px;
+  border-radius: 10px;
+  font-size: x-large;
+  color: #aaddff;
+  border: 1px solid rgba(0, 100, 200, 0.4);
+}
+
+.widget-volume > box > button {
+  background: rgba(0, 80, 160, 0.7);
+  border: none;
+  color: #00d4ff;
+}
+
+.per-app-volume {
+  background-color: rgba(0, 20, 40, 0.8);
+  padding: 4px 8px 8px;
+  margin: 0 8px 8px;
+  border-radius: 10px;
+  color: #cceeff;
+  border: 1px solid rgba(0, 100, 200, 0.3);
+}
+
+/* 背光控件 */
+.widget-backlight {
+  background: rgba(0, 15, 35, 0.9);
+  padding: 5px;
+  margin: 10px 10px 5px 10px;
+  border-radius: 10px;
+  font-size: x-large;
+  color: #aaddff;
+  border: 1px solid rgba(0, 100, 200, 0.4);
+}
