@@ -360,6 +360,7 @@ install_optional_deps() {
         'sunshine'
         'reqable-bin'
         'wechat-devtools-git'
+        'linux-wifi-hotspot'
     )
     
     
