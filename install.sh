@@ -197,6 +197,9 @@ install_core_deps() {
         'imagemagick'
         'pbzip2'
         'pigz'
+        'lzop'
+        'lzip'
+        'ncompress'
         'pv'
         'tumbler'
         'mpv'
@@ -641,6 +644,12 @@ deploy_system_configs() {
         sudo tee /etc/safe-rm.conf < "$etc_source/safe-rm.conf" > /dev/null
         success "已部署 safe-rm.conf"
     fi
+    
+    if [ -f "$etc_source/zram-generator.conf" ]; then
+        sudo tee /etc/zram-generator.conf < "$etc_source/zram-generator.conf" > /dev/null
+        success "已部署 zram-generator.conf"
+    fi
+    
 
     if [ -d "$etc_source/systemd" ]; then
         log "部署 systemd 配置文件..."
