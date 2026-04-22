@@ -46,6 +46,47 @@ success "当前用户：$CURRENT_USER ($CURRENT_USER_HOME)"
 # =============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+
+
+# =============================================================================
+# 安装并初始化 Git LFS
+# =============================================================================
+info "检查 Git LFS..."
+
+if ! command -v git-lfs &> /dev/null; then
+    info "正在安装 git-lfs..."
+    if sudo pacman -S --noconfirm --needed git-lfs 2>/dev/null; then
+        success "git-lfs 安装成功"
+    else
+        error "git-lfs 安装失败，请手动安装: sudo pacman -S git-lfs"
+        exit 1
+    fi
+else
+    success "git-lfs 已安装"
+fi
+
+cd "$SCRIPT_DIR" || { error "无法进入脚本目录: $SCRIPT_DIR"; exit 1; }
+
+if [ -d ".git" ] || git rev-parse --git-dir &> /dev/null; then
+    info "初始化 Git LFS..."
+    git lfs install --local 2>/dev/null || git lfs install
+    
+    info "拉取 LFS 文件..."
+    if git lfs pull; then
+        success "LFS 文件已同步"
+    else
+        error "Git LFS 拉取失败，大文件可能不完整"
+        error "请检查网络连接或仓库 LFS 配额"
+        exit 1
+    fi
+else
+    warning "当前目录不是 Git 仓库，跳过 LFS 操作"
+fi
+
+
+
+
+
 # =============================================================================
 # 创建软链接函数（全局函数）
 # =============================================================================
