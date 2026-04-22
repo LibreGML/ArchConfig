@@ -54,7 +54,7 @@ create_symlink() {
     local dst="$2"
     
     case "$dst" in
-        "$CURRENT_USER_HOME"|"$"/*)
+        "$CURRENT_USER_HOME"|"$CURRENT_USER_HOME"/*)
             ;;
         *)
             error "拒绝创建符号链接：目标路径 $dst 不在用户家目录下"

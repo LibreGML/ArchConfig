@@ -1474,8 +1474,7 @@ ip route get 223.5.5.5  # 验证
 docker pull archlinux:multilib-devel-20260329.0.507017
 
 # 创建容器
-docker run -it --name my_arch_test archlinux:multilib-devel-20260329.0.507017 /bin/bash
-
+p
 # 设置root密码
 passwd root
 
