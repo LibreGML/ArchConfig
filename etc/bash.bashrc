@@ -397,60 +397,24 @@ loop() {
 # =============================================================================
 
 tmuxmgr() {
-    # Check if tmux is available
-    if ! command -v tmux &>/dev/null; then
-        echo "tmux is not installed" >&2
-        return 127
-    fi
-    
-    # Check if already in tmux
-    if [[ -n "$TMUX" ]]; then
-        echo "Already in a tmux session"
-        return 1
-    fi
-    
-    # List sessions
-    local sessions
-    sessions=$(tmux list-sessions -F "#{session_name}" 2>/dev/null)
-    
-    if [[ -z "$sessions" ]]; then
-        tmux new-session -s main
-        return $?
-    fi
-    
-    # Display menu
-    echo -e "\033[1;32mAvailable sessions:\033[m"
-    echo "$sessions" | nl -w2 -s') '
-    echo -e "\n[a]ttach  [n]ew  [k]ill  [q]uit"
-    
-    # Read choice
-    local choice
-    read -rsn1 choice 2>/dev/null || return 1
-    echo  # New line after keypress
-    
-    case "$choice" in
-        a|A)
-            local target
-            read -ep "Session number or name: " target
-            if [[ -z "$target" ]]; then
-                return 1
-            elif [[ "$target" =~ ^[0-9]+$ ]]; then
-                target=$(echo "$sessions" | sed -n "${target}p")
-            fi
-            [[ -n "$target" ]] && tmux attach -t "$target"
+    command -v tmux &>/dev/null || return
+    command -v fzf &>/dev/null || { echo "fzf not found"; return; }
+    [[ -n "$TMUX" ]] && return
+
+    local act
+    act=$(echo -e "🔗 进入\n➕ 新建\n🗑️ 删除" | fzf --height=40% --border)
+
+    [[ -z "$act" ]] && return
+
+    case $act in
+        "🔗 进入")
+            tmux ls 2>/dev/null | cut -d: -f1 | fzf | xargs -r tmux attach -t
             ;;
-        n|N)
-            local name
-            read -ep "New session name: " name
-            [[ -n "$name" ]] && tmux new-session -s "$name"
+        "➕ 新建")
+            read -p "Session name: " n && [[ -n "$n" ]] && tmux new -s "$n"
             ;;
-        k|K)
-            local target
-            read -ep "Session to kill: " target
-            [[ -n "$target" ]] && tmux kill-session -t "$target"
-            ;;
-        *) 
-            return 1 
+        "🗑️ 删除")
+            tmux ls 2>/dev/null | cut -d: -f1 | fzf | xargs -r tmux kill-session -t
             ;;
     esac
 }
@@ -703,7 +667,9 @@ topcpu() {
 
 topmem() {
     if command -v ps &>/dev/null; then
+        # GNU ps (Linux)
         ps aux --sort=-%mem 2>/dev/null | head -11 || \
+        # BSD ps (macOS)
         ps aux -o %mem,rss,command | sort -rn | head -11
     else
         top -o mem 2>/dev/null || echo "Process monitoring not available"
@@ -819,10 +785,10 @@ trap __cleanup EXIT
 
 # Initialize fzf if available
 _fzf_init_paths=(
-    /usr/share/fzf/shell/key-bindings.bash      
-    /usr/share/fzf/key-bindings.bash           
-    /usr/share/doc/fzf/examples/key-bindings.bash  
-    "${SYSROOT}/usr/share/fzf/key-bindings.bash"  
+    /usr/share/fzf/shell/key-bindings.bash      # Fedora/RHEL
+    /usr/share/fzf/key-bindings.bash            # Arch Linux
+    /usr/share/doc/fzf/examples/key-bindings.bash  # Debian/Ubuntu (doc package)
+    "${SYSROOT}/usr/share/fzf/key-bindings.bash"   # Termux
 )
 
 for fzf_binding in "${_fzf_init_paths[@]}"; do
