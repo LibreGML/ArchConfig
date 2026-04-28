@@ -544,6 +544,96 @@ if status is-interactive
         end
     end
     
+
+    
+    # ==========================================
+    # Tmux 会话管理器
+    # ==========================================
+    
+    function tmuxmgr
+        if not command -q tmux
+            echo "❌ 错误: tmux 未安装" >&2
+            return 1
+        end
+        
+        if not command -q fzf
+            echo "❌ 错误: fzf 未安装" >&2
+            return 1
+        end
+        
+        if set -q TMUX
+            echo "⚠️ 已在 tmux 会话中" >&2
+            return 1
+        end
+        
+        while true
+            set -l action (printf "🔗 进入会话\n➕ 创建新会话\n🗑️ 删除会话\n❌ 退出" | fzf --height=40% --border --prompt="Tmux Manager > " --header="按 ESC 取消")
+            
+            if test -z "$action"
+                break
+            end
+            
+            switch "$action"
+                case "🔗 进入会话"
+                    set -l sessions (tmux ls 2>/dev/null | string split ':' | head -n 1)
+                    
+                    if test (count $sessions) -eq 0
+                        echo "📭 没有活跃的 tmux 会话" >&2
+                        read -l -P "按任意键继续..." -s -n 1
+                        continue
+                    end
+                    
+                    set -l target_session (echo "$sessions" | fzf --prompt="选择要进入的会话 > " --header="按 ESC 返回")
+                    
+                    if test -n "$target_session"
+                        tmux attach-session -t "$target_session"
+                    end
+                    
+                case "➕ 创建新会话"
+                    read -l -P "输入会话名称: " session_name
+                    
+                    if test -z "$session_name"
+                        echo "❌ 会话名称不能为空" >&2
+                        read -l -P "按任意键继续..." -s -n 1
+                        continue
+                    end
+                    
+                    if tmux has-session -t="$session_name" 2>/dev/null
+                        echo "⚠️ 会话 '$session_name' 已存在" >&2
+                        read -l -P "按任意键继续..." -s -n 1
+                    else
+                        tmux new-session -d -s "$session_name"
+                        echo "✅ 已创建并连接到会话 '$session_name'" >&2
+                        tmux attach-session -t "$session_name"
+                    end
+                case "🗑️ 删除会话"
+                    set -l sessions (tmux ls 2>/dev/null | string split ':' | head -n 1)
+                    
+                    if test (count $sessions) -eq 0
+                        echo "📭 没有活跃的 tmux 会话" >&2
+                        read -l -P "按任意键继续..." -s -n 1
+                        continue
+                    end
+                    
+                    set -l target_session (echo "$sessions" | fzf --prompt="选择要删除的会话 > " --header="按 ESC 返回")
+                    
+                    if test -n "$target_session"
+                        tmux kill-session -t "$target_session"
+                        echo "✅ 已删除会话 '$target_session'" >&2
+                        read -l -P "按任意键继续..." -s -n 1
+                    end
+                    
+                case "❌ 退出"
+                    break
+                    
+                case "*"
+                    break
+            end
+        end
+    end
+
+
+    
     
     
     
@@ -1027,33 +1117,5 @@ end
 
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

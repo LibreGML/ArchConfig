@@ -1,19 +1,13 @@
 #!/bin/bash
+
 # =============================================================================
-# Universal Modern Bash Configuration
-# Compatible with: Fedora, CentOS, RHEL, Debian, Ubuntu, Arch, macOS, Termux
+# 环境检测与初始化
 # =============================================================================
 
 export TERM=xterm
 
-# Exit if not interactive shell
 [[ $- != *i* ]] && return
 
-# =============================================================================
-# Environment Detection
-# =============================================================================
-
-# Detect special environments
 if [[ -n "$TERMUX_VERSION" ]]; then
     SYSROOT="/data/data/com.termux/files"
 elif [[ -d "/data/data/com.termux" ]]; then
@@ -22,86 +16,479 @@ else
     SYSROOT=""
 fi
 
-# Runtime data directory (use PID to avoid conflicts)
-RAMFS_DIR="${SYSROOT:-/tmp}/bashrc_data_$$"
-mkdir -p "$RAMFS_DIR" 2>/dev/null || RAMFS_DIR="/tmp/bashrc_fallback_$$"
-mkdir -p "$RAMFS_DIR" 2>/dev/null || true
-
 # =============================================================================
-# Shell Options & History
+# Shell选项与历史记录配置
 # =============================================================================
 
-# History settings
 HISTFILE="${HOME}/.bash_history"
 HISTSIZE=100000
 HISTFILESIZE=200000
 HISTCONTROL="ignorespace:ignoredups"
 shopt -s histappend
-
-# Enhanced shell behavior
 shopt -s autocd cdspell histverify checkwinsize globstar
 shopt -s cdable_vars extglob dirspell dotglob
 shopt -s no_empty_cmd_completion
-
-# Color support
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-export TERM="${TERM:-xterm-256color}"
-export LESS="-R"  # Enable colors in less
+export LESS="-R"
 
 # =============================================================================
-# Path Management System
+# 文件查找函数
 # =============================================================================
 
-PATHS_SAVE_FILE="$RAMFS_DIR/saved_paths.txt"
-CD_HISTFILE="${HOME}/.bash_cd_history"
-
-# Initialize files safely
-for _file in "$PATHS_SAVE_FILE" "$CD_HISTFILE"; do
-    if [[ ! -f "$_file" ]]; then
-        touch "$_file" 2>/dev/null || true
+_parse_find_args() {
+    local cmd_name="$1"
+    shift
+    local user_args=("$@")
+    
+    local search_path="."
+    local pattern=""
+    
+    case ${#user_args[@]} in
+        1)
+            pattern="${user_args[0]}"
+            ;;
+        2)
+            search_path="${user_args[0]}"
+            pattern="${user_args[1]}"
+            ;;
+        *)
+            echo "❌ 错误: 参数过多。用法: $cmd_name [路径] 模式" >&2
+            return 1
+            ;;
+    esac
+    
+    if [[ "$search_path" == ~* ]]; then
+        search_path=$(realpath -- "$search_path" 2>/dev/null || echo "$search_path")
     fi
-done
-unset _file
-
-# Save original PATH for restoration
-ORIGINAL_PATH="$PATH"
-
-# =============================================================================
-# Core Utility Functions
-# =============================================================================
-
-# Command execution timer
-__timing_start() {
-    __cmd_start_time=$(date +%s%N 2>/dev/null) || __cmd_start_time=""
+    
+    if [[ ! -e "$search_path" ]]; then
+        printf "❌ 错误: 路径不存在: %s\n" "$search_path" >&2
+        return 2
+    fi
+    
+    if [[ ! -d "$search_path" ]]; then
+        printf "❌ 错误: 路径不是目录: %s\n" "$search_path" >&2
+        return 2
+    fi
+    
+    if [[ -z "$pattern" ]]; then
+        printf "❌ 错误: 搜索模式不能为空\n" >&2
+        return 3
+    fi
+    
+    echo "$search_path"
+    echo "$pattern"
+    return 0
 }
 
-__timing_end() {
-    local ret=$?
+findfile() {
+    local parsed
+    parsed=$(_parse_find_args findfile "$@") || return $?
     
-    if [[ -n "$__cmd_start_time" && -n "$__last_command" ]]; then
-        local end_time
-        end_time=$(date +%s%N 2>/dev/null) || end_time=""
+    local search_path
+    search_path=$(echo "$parsed" | head -1)
+    local pattern
+    pattern=$(echo "$parsed" | tail -1)
+    
+    find "$search_path" -type f -iname "*$pattern*" 2>/dev/null | head -1000
+}
+
+finddir() {
+    local parsed
+    parsed=$(_parse_find_args finddir "$@") || return $?
+    
+    local search_path
+    search_path=$(echo "$parsed" | head -1)
+    local pattern
+    pattern=$(echo "$parsed" | tail -1)
+    
+    find "$search_path" -type d -iname "*$pattern*" 2>/dev/null | head -500
+}
+
+findtext() {
+    local parsed
+    parsed=$(_parse_find_args findtext "$@") || return $?
+    
+    local search_path
+    search_path=$(echo "$parsed" | head -1)
+    local pattern
+    pattern=$(echo "$parsed" | tail -1)
+    
+    if command -v rg &>/dev/null; then
+        rg --smart-case --hidden --no-ignore \
+           --max-depth 8 --max-filesize 10M \
+           --max-columns=150 \
+           --glob='!{.git,.svn,.hg,node_modules,build,target,dist,.cache,__pycache__,.DS_Store}' \
+           -- "$pattern" "$search_path" 2>/dev/null | head -500
+    else
+        echo "❌ 错误: 请安装 ripgrep (rg)" >&2
+        return 127
+    fi
+}
+
+# =============================================================================
+# 空目录清理函数
+# =============================================================================
+
+rmemptydir() {
+    local target="${1:-.}"
+    
+    if [[ ! -e "$target" ]]; then
+        echo "❌ rmemptydir: 错误: 路径不存在" >&2
+        return 1
+    fi
+    
+    if [[ ! -d "$target" ]]; then
+        echo "❌ rmemptydir: 错误: 不是目录" >&2
+        return 1
+    fi
+    
+    if [[ -L "$target" ]]; then
+        echo "❌ rmemptydir: 错误: 拒绝操作符号链接" >&2
+        return 1
+    fi
+    
+    local abs_target
+    abs_target=$(realpath "$target")
+    
+    local protected_dirs=("/" "/home" "/root" "/etc" "/var" "/usr" "/bin" "/sbin" "/lib" "/lib64" "/tmp" "/dev" "/proc" "/sys")
+    for protected in "${protected_dirs[@]}"; do
+        if [[ "$abs_target" == "$protected" ]]; then
+            echo "🛡️ rmemptydir: 安全错误: 禁止操作系统关键目录" >&2
+            return 1
+        fi
+    done
+    
+    local total_count=0
+    local iteration=0
+    local max_iterations=100
+    
+    while [[ $iteration -lt $max_iterations ]]; do
+        ((iteration++))
         
-        if [[ -n "$end_time" ]]; then
-            local elapsed_ns=$(( end_time - __cmd_start_time ))
-            local elapsed_sec
+        local tmpfile
+        tmpfile=$(mktemp)
+        local round_count=0
+        
+        find "$target" -mindepth 1 -depth -type d -empty \
+             ! -type l ! -fstype proc ! -fstype sysfs ! -fstype devfs \
+             -print0 2>/dev/null > "$tmpfile"
+        
+        if [[ ! -s "$tmpfile" ]]; then
+            rm -f "$tmpfile"
+            break
+        fi
+        
+        while IFS= read -r -d '' dir; do
+            if [[ -n "$dir" && -d "$dir" ]]; then
+                if [[ -w "$dir" ]]; then
+                    if rmdir "$dir" 2>/dev/null; then
+                        local display="${dir//$'\n'/␊}"
+                        printf "🗑️ 已删除: %s\n" "$display"
+                        ((round_count++))
+                        ((total_count++))
+                    fi
+                fi
+            fi
+        done < "$tmpfile"
+        
+        rm -f "$tmpfile"
+        
+        [[ $round_count -eq 0 ]] && break
+    done
+    
+    if [[ $iteration -ge $max_iterations ]]; then
+        echo "⚠️ rmemptydir: 警告: 达到最大迭代次数" >&2
+    fi
+    
+    if [[ $total_count -eq 0 ]]; then
+        echo "📂 未发现空目录"
+    else
+        echo "✅ 完成: 共删除 $total_count 个空目录（迭代 $iteration 轮）"
+    fi
+}
+
+# =============================================================================
+# HTTP请求封装函数
+# =============================================================================
+
+get() {
+    # get "https://uapis.cn/api/v1/answerbook/ask" "question=人生的意义是什么"
+    # get "https://uapis.cn/api/v1/convert/unixtime" "time=2023-10-27 10:30:00"
+    # get "https://uapis.cn/api/v1/network/ping" "host=baidu.com"
+    local url="$1"
+    
+    if [[ ! "$url" =~ ^https?:// ]]; then
+        echo "❌ 必须要http:// 或 https:// 开头" >&2
+        return 1
+    fi
+    
+    local cmd=(curl -s -f -m 10 -X GET \
+        -H "User-Agent: http_get/1.0" \
+        -H "Accept: application/json, */*" \
+        -H "Accept-Encoding: gzip, deflate" \
+        -w "\n%{http_code}" \
+        -G)
+    
+    shift  
+    local param
+    for param in "$@"; do
+        if [[ "$param" =~ ^[^=]+= ]]; then
+            cmd+=("--data-urlencode" "$param")
+        else
+            echo "⚠️ Warning: Skipping malformed parameter '$param'" >&2
+        fi
+    done
+    
+    cmd+=("$url")
+    
+    local response
+    response=$( "${cmd[@]}" 2>&1 ) || {
+        echo "❌ Error: Failed to execute curl" >&2
+        return 1
+    }
+    
+    local lines_array=()
+    while IFS= read -r line; do
+        lines_array+=("$line")
+    done <<< "$response"
+    
+    local lines_count=${#lines_array[@]}
+    if [[ $lines_count -lt 2 ]]; then
+        echo "❌ Error: Invalid response from server" >&2
+        return 1
+    fi
+    
+    local status_code="${lines_array[$((lines_count-1))]}"
+    local body_lines=("${lines_array[@]:0:$((lines_count-1))}")
+    
+    if [[ ! "$status_code" =~ ^2[0-9][0-9]$ ]]; then
+        echo "🔴 HTTP $status_code" >&2
+        if [[ ${#body_lines[@]} -gt 0 ]]; then
+            printf '%s\n' "${body_lines[@]}" >&2
+        fi
+        return 1
+    fi
+    
+    if [[ ${#body_lines[@]} -eq 0 ]]; then
+        return 0
+    fi
+    
+    local body_str
+    body_str=$(printf '%s\n' "${body_lines[@]}")
+    
+    if command -v jq >/dev/null 2>&1; then
+        echo "$body_str" | jq -e . 2>/dev/null || echo "$body_str"
+    else
+        echo "$body_str"
+    fi
+}
+
+
+post() {
+    local url="$1"
+    local json="$2"
+    
+    local response
+    response=$(curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -d "$json" \
+        "$url")
+    
+    if command -v jq &>/dev/null; then
+        echo "$response" | jq .
+    else
+        echo "$response"
+    fi
+}
+
+postfile() {
+    local url="$1"
+    shift
+    
+    local cmd=(curl -s -X POST)
+    
+    for part in "$@"; do
+        cmd+=(-F "$part")
+    done
+    
+    cmd+=("$url")
+    
+    "${cmd[@]}"
+}
+
+# =============================================================================
+# 开发工具函数
+# =============================================================================
+
+genkey() {
+    openssl rand -base64 32 | tr -d '\n=' | tr '/+' '_-'
+    echo
+}
+
+mine() {
+    local user
+    user=$(whoami)
+    
+    for item in "$@"; do
+        if [[ -d "$item" ]]; then
+            sudo chown -R "$user:$user" "$item"
+            echo "✓ $item/* → $user:$user"
+        else
+            sudo chown "$user:$user" "$item"
+            echo "✓ $item → $user:$user"
+        fi
+    done
+}
+
+# =============================================================================
+# 批量重命名函数
+# =============================================================================
+
+batchrename() {
+    local regex="$1"
+    local replacement="$2"
+    shift 2
+    local files=("$@")
+    
+    if [[ -z "$regex" ]]; then
+        echo "❌ 错误: 正则表达式不能为空" >&2
+        return 1
+    fi
+    
+    for file in "${files[@]}"; do
+        if [[ -e "$file" ]]; then
+            local new_name
+            new_name=$(echo "$file" | sed -E "s|${regex}|${replacement}|g")
             
-            # Use awk for floating point calculation (more portable than bc)
-            elapsed_sec=$(awk "BEGIN {printf \"%.2f\", ${elapsed_ns}/1000000000}" 2>/dev/null) || elapsed_sec="?"
+            if [[ -z "$new_name" || "$file" == "$new_name" ]]; then
+                continue
+            fi
             
-            if [[ $ret -eq 0 ]]; then
-                printf "\r\033[K\033[1;32m✓ %s (%ss)\033[m\n" "${__last_command}" "$elapsed_sec"
-            else
-                printf "\r\033[K\033[1;31m✗ %s (exit: %d, %ss)\033[m\n" "${__last_command}" "$ret" "$elapsed_sec"
+            if [[ "$new_name" == *..* ]]; then
+                echo "⚠️ 跳过不安全的重命名: $file -> $new_name" >&2
+                continue
+            fi
+            
+            if [[ "$file" != /* && "$new_name" == /* ]]; then
+                echo "⚠️ 跳过不安全的重命名（相对路径变为绝对路径）: $file -> $new_name" >&2
+                continue
+            fi
+            
+            mv -i "$file" "$new_name"
+            echo "📝 Renamed: $file -> $new_name"
+        fi
+    done
+}
+
+multirename() {
+    for file in "$@"; do
+        echo "📄 当前文件: $file"
+        read -rp "新文件名 (留空跳过，'q'退出): " new_name
+        
+        if [[ -z "$new_name" ]]; then
+            echo "⏭️ 跳过: $file"
+        elif [[ "$new_name" == "q" ]]; then
+            echo "🚪 退出重命名"
+            return
+        else
+            mv "$file" "$new_name"
+            echo "✅ 已重命名: $file -> $new_name"
+        fi
+        echo "---"
+    done
+}
+
+# =============================================================================
+# 文本替换函数
+# =============================================================================
+
+replacetext() {
+    local file_pattern="$1"
+    local old_string="$2"
+    local new_string="$3"
+    
+    if [[ -z "$old_string" ]]; then
+        echo "❌ 错误：旧字符串不能为空" >&2
+        return 1
+    fi
+    
+    if ! command -v perl &>/dev/null; then
+        echo "❌ 错误: 请安装 perl" >&2
+        return 127
+    fi
+    
+    export REPLACE_OLD="$old_string"
+    export REPLACE_NEW="$new_string"
+    
+    find . -type f -name "$file_pattern" -exec perl -pi -e '
+        use strict;
+        use warnings;
+        my $old = $ENV{REPLACE_OLD};
+        my $new = $ENV{REPLACE_NEW};
+        s/\Q$old\E/$new/g;
+    ' {} +
+    
+    unset REPLACE_OLD REPLACE_NEW
+    
+    echo "✅ 替换完成"
+}
+
+# =============================================================================
+# 压缩工具函数
+# =============================================================================
+
+mktar() {
+    for target in "$@"; do
+        if [[ ! -e "$target" ]]; then
+            echo "❌ 错误: '$target' 不存在，跳过"
+            continue
+        fi
+        
+        local base_name
+        base_name=$(basename "$target")
+        local tar_name="$base_name.tar"
+        
+        if [[ -e "$tar_name" ]]; then
+            read -rp "'$tar_name' 已存在，覆盖？(y/N): " confirm
+            if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+                echo "⏭️ 跳过: $target (已存在 $tar_name)"
+                continue
             fi
         fi
-    fi
-    
-    unset __cmd_start_time __last_command
-    return $ret
+        
+        echo "📦 正在创建: $tar_name"
+        if tar -cvf "$tar_name" "$target" 2>/dev/null; then
+            echo "✅ 已创建: $tar_name"
+        else
+            echo "❌ 创建失败: $tar_name"
+        fi
+    done
 }
 
-# Smart PWD display with path validation
+# =============================================================================
+# 目录创建函数
+# =============================================================================
+
+mkcd() {
+    if [[ $# -ne 1 ]]; then
+        echo "📝 用法: mkcd 'My Directory'" >&2
+        return 1
+    fi
+    
+    if mkdir -p "$1" && cd "$1"; then
+        :
+    else
+        echo "❌ 创建目录失败: $1" >&2
+        return 1
+    fi
+}
+
+
+# =============================================================================
+# 智能路径显示函数
+# =============================================================================
+
 __smart_pwd() {
     local home_tilde="\033[1;35m~\033[m"
     local root_slash="\033[1;34m/\033[m"
@@ -109,7 +496,6 @@ __smart_pwd() {
     local link_color="\033[1;36m"
     local error_color="\033[1;31m"
     
-    # Handle special cases
     if [[ "$PWD" == "$HOME" ]]; then
         echo -e "$home_tilde"
         return
@@ -118,20 +504,17 @@ __smart_pwd() {
         return
     fi
     
-    # Convert home directory to tilde
     local display_path="${PWD/#$HOME/\~}"
     local result=""
-    
-    # Split path and process each component
-    local IFS='/'
-    local -a parts=($display_path)
     local accumulated_path=""
+    
+    local -a parts
+    IFS='/' read -ra parts <<< "$display_path"
     
     for i in "${!parts[@]}"; do
         local part="${parts[$i]}"
         [[ -z "$part" ]] && continue
         
-        # Build accumulated path for validation
         if [[ "$i" -eq 0 && "${parts[0]}" == "~" ]]; then
             accumulated_path="$HOME"
             result+="${home_tilde}/"
@@ -140,7 +523,6 @@ __smart_pwd() {
             accumulated_path+="/${part}"
         fi
         
-        # Determine color based on file type
         local color="$dir_color"
         if [[ -L "$accumulated_path" ]]; then
             color="$link_color"
@@ -151,301 +533,143 @@ __smart_pwd() {
         result+="${color}${part}\033[m/"
     done
     
-    # Remove trailing slash
     echo -e "${result%/}"
 }
 
-# Git branch detection (safe for non-git directories)
+# =============================================================================
+# Git分支检测函数
+# =============================================================================
+
 __git_branch() {
-    # Only run git commands if we're likely in a git repo
-    [[ -d ".git" ]] || return 0
-    
     local branch
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null) || \
-    branch=$(git rev-parse --short HEAD 2>/dev/null) || \
-    return 0
+    branch=$(git rev-parse --short HEAD 2>/dev/null) || return 0    
+    local branch_name
+    branch_name=$(git symbolic-ref --short HEAD 2>/dev/null) || branch_name="$branch"
     
-    if [[ -n "$branch" ]]; then
-        printf " \033[1;31m[\033[m%s\033[1;31m]\033[m" "$branch"
+    if [[ -n "$branch_name" ]]; then
+        printf " \033[1;31m[\033[m%s\033[1;31m]\033[m" "$branch_name"
     fi
 }
 
 # =============================================================================
-# Enhanced CD with History Tracking
-# =============================================================================
-
-cd() {
-    builtin cd "$@" || return $?
-    
-    # Record current directory to history
-    if [[ -w "$CD_HISTFILE" ]]; then
-        echo "$PWD" >> "$CD_HISTFILE"
-        
-        # Keep only last 100 unique entries
-        if [[ -f "$CD_HISTFILE" ]]; then
-            local tmp_file="${CD_HISTFILE}.tmp.$$"
-            if tac "$CD_HISTFILE" 2>/dev/null | awk '!seen[$0]++' | tac > "$tmp_file" 2>/dev/null; then
-                head -n 100 "$tmp_file" > "${tmp_file}.head" 2>/dev/null
-                mv "${tmp_file}.head" "$CD_HISTFILE" 2>/dev/null
-            fi
-            rm -f "$tmp_file" "${tmp_file}.head" 2>/dev/null
-        fi
-    fi
-    
-    # Update terminal title
-    printf '\033]0;%s@%s:%s\007' "${USER:-user}" "${HOSTNAME%%.*}" "$(basename "$PWD")" 2>/dev/null || true
-}
-
-# Undo last cd operation
-uncd() {
-    if [[ ! -s "$CD_HISTFILE" ]]; then
-        echo "No cd history available" >&2
-        return 1
-    fi
-    
-    # Get previous directory (second to last entry)
-    local prev_dir
-    prev_dir=$(tail -n 2 "$CD_HISTFILE" 2>/dev/null | head -n 1)
-    
-    if [[ -n "$prev_dir" && -d "$prev_dir" ]]; then
-        cd "$prev_dir"
-        
-        # Remove the last two entries from history
-        local line_count
-        line_count=$(wc -l < "$CD_HISTFILE" 2>/dev/null) || line_count=0
-        
-        if [[ "$line_count" -gt 2 ]]; then
-            head -n -2 "$CD_HISTFILE" > "${CD_HISTFILE}.tmp" 2>/dev/null && \
-            mv "${CD_HISTFILE}.tmp" "$CD_HISTFILE" 2>/dev/null
-        else
-            > "$CD_HISTFILE"
-        fi
-    else
-        echo "Previous directory no longer exists: $prev_dir" >&2
-        return 1
-    fi
-}
-
-# =============================================================================
-# Path Bookmark System
-# =============================================================================
-
-savepath() {
-    local target_path="${1:-$PWD}"
-    
-    # Resolve to absolute path
-    target_path=$(realpath "$target_path" 2>/dev/null || readlink -f "$target_path" 2>/dev/null) || {
-        echo "Error: Cannot resolve path '$1'" >&2
-        return 1
-    }
-    
-    # Validate path exists
-    if [[ ! -d "$target_path" ]]; then
-        echo "Error: Directory does not exist: $target_path" >&2
-        return 1
-    fi
-    
-    # Find next available bookmark number
-    local num=1
-    while grep -q "^bpath${num}=" "$PATHS_SAVE_FILE" 2>/dev/null; do
-        ((num++))
-    done
-    
-    # Save bookmark
-    echo "bpath${num}=${target_path}" >> "$PATHS_SAVE_FILE"
-    echo "Saved: bpath${num} → ${target_path}"
-}
-
-rmpath() {
-    if [[ $# -eq 0 ]]; then
-        echo "Usage: rmpath <bookmark_number> [number2 ...]" >&2
-        return 1
-    fi
-    
-    local removed=0
-    for num in "$@"; do
-        # Validate input is a number
-        if [[ ! "$num" =~ ^[0-9]+$ ]]; then
-            echo "Invalid bookmark number: $num" >&2
-            continue
-        fi
-        
-        if grep -q "^bpath${num}=" "$PATHS_SAVE_FILE" 2>/dev/null; then
-            sed -i "/^bpath${num}=/d" "$PATHS_SAVE_FILE" 2>/dev/null && {
-                echo "Removed: bpath${num}"
-                ((removed++))
-            }
-        else
-            echo "Not found: bpath${num}" >&2
-        fi
-    done
-    
-    [[ $removed -eq 0 ]] && return 1
-    return 0
-}
-
-lspath() {
-    if [[ ! -s "$PATHS_SAVE_FILE" ]]; then
-        echo "No saved paths" >&2
-        return 1
-    fi
-    
-    # Display with formatting if column is available
-    if command -v column &>/dev/null; then
-        column -t -s '=' < "$PATHS_SAVE_FILE" 2>/dev/null || cat "$PATHS_SAVE_FILE"
-    else
-        cat "$PATHS_SAVE_FILE"
-    fi
-}
-
-byd() {
-    if [[ $# -lt 1 ]]; then
-        echo "Usage: byd <command> [args...]" >&2
-        return 1
-    fi
-    
-    local cmd="$1"
-    shift
-    
-    # Validate command exists
-    if ! command -v "$cmd" &>/dev/null; then
-        echo "Command not found: $cmd" >&2
-        return 127
-    fi
-    
-    local args=()
-    for arg in "$@"; do
-        if [[ "$arg" =~ ^bpath([0-9]+)$ ]]; then
-            local num="${BASH_REMATCH[1]}"
-            local path
-            path=$(grep "^bpath${num}=" "$PATHS_SAVE_FILE" 2>/dev/null | head -n 1 | cut -d'=' -f2-)
-            
-            if [[ -z "$path" ]]; then
-                echo "Error: Bookmark bpath${num} not found" >&2
-                return 1
-            fi
-            
-            args+=("$path")
-        else
-            args+=("$arg")
-        fi
-    done
-    
-    "$cmd" "${args[@]}"
-}
-
-clpath() {
-    > "$PATHS_SAVE_FILE" 2>/dev/null || true
-    echo "All bookmarks cleared"
-}
-
-# =============================================================================
-# Loop Utility Function
-# =============================================================================
-
-loop() {
-    local count=0
-    local ignore_errors=false
-    
-    # Parse options
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            -u|--until-fail) 
-                ignore_errors=true
-                shift 
-                ;;
-            -n|--count) 
-                if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
-                    count="$2"
-                    shift 2
-                else
-                    echo "Error: --count requires a numeric argument" >&2
-                    return 1
-                fi
-                ;;
-            *) 
-                break 
-                ;;
-        esac
-    done
-    
-    local cmd="$*"
-    [[ -z "$cmd" ]] && return 0
-    
-    # Execute loop
-    if [[ $count -gt 0 ]]; then
-        for ((i=1; i<=count; i++)); do
-            eval "$cmd" || { 
-                if ! $ignore_errors; then 
-                    return $?
-                fi 
-            }
-        done
-    else
-        while true; do
-            eval "$cmd" || { 
-                if ! $ignore_errors; then 
-                    return $?
-                fi 
-            }
-        done
-    fi
-}
-
-# =============================================================================
-# Tmux Session Manager
+# Tmux会话管理器
 # =============================================================================
 
 tmuxmgr() {
-    command -v tmux &>/dev/null || return
-    command -v fzf &>/dev/null || { echo "fzf not found"; return; }
-    [[ -n "$TMUX" ]] && return
-
-    local act
-    act=$(echo -e "🔗 进入\n➕ 新建\n🗑️ 删除" | fzf --height=40% --border)
-
-    [[ -z "$act" ]] && return
-
-    case $act in
-        "🔗 进入")
-            tmux ls 2>/dev/null | cut -d: -f1 | fzf | xargs -r tmux attach -t
-            ;;
-        "➕ 新建")
-            read -p "Session name: " n && [[ -n "$n" ]] && tmux new -s "$n"
-            ;;
-        "🗑️ 删除")
-            tmux ls 2>/dev/null | cut -d: -f1 | fzf | xargs -r tmux kill-session -t
-            ;;
-    esac
+    if ! command -v tmux &>/dev/null; then
+        echo "❌ 错误: tmux 未安装" >&2
+        return 1
+    fi
+    
+    if ! command -v fzf &>/dev/null; then
+        echo "❌ 错误: fzf 未安装" >&2
+        return 1
+    fi
+    
+    if [[ -n "$TMUX" ]]; then
+        echo "⚠️ 已在 tmux 会话中" >&2
+        return 1
+    fi
+    
+    while true; do
+        local action
+        action=$(printf "🔗 进入会话\n➕ 创建新会话\n🗑️ 删除会话\n❌ 退出" | fzf --height=40% --border --prompt="Tmux Manager > " --header="按 ESC 取消")
+        
+        if [[ -z "$action" ]]; then
+            break
+        fi
+        
+        case "$action" in
+            "🔗 进入会话")
+                local sessions
+                sessions=$(tmux ls 2>/dev/null | cut -d: -f1)
+                
+                if [[ -z "$sessions" ]]; then
+                    echo "📭 没有活跃的 tmux 会话" >&2
+                    read -rp "按任意键继续..." -n 1 -s
+                    continue
+                fi
+                
+                local target_session
+                target_session=$(echo "$sessions" | fzf --prompt="选择要进入的会话 > " --header="按 ESC 返回")
+                
+                if [[ -n "$target_session" ]]; then
+                    tmux attach-session -t "$target_session"
+                fi
+                ;;
+                
+            "➕ 创建新会话")
+                read -rp "输入会话名称: " session_name
+                
+                if [[ -z "$session_name" ]]; then
+                    echo "❌ 会话名称不能为空" >&2
+                    read -rp "按任意键继续..." -n 1 -s
+                    continue
+                fi
+                
+                if tmux has-session -t="$session_name" 2>/dev/null; then
+                    echo "⚠️ 会话 '$session_name' 已存在" >&2
+                    read -rp "按任意键继续..." -n 1 -s
+                else
+                    tmux new-session -d -s "$session_name"
+                    echo "✅ 已创建并连接到会话 '$session_name'" >&2
+                    tmux attach-session -t "$session_name"
+                fi
+                ;;
+                
+            "🗑️ 删除会话")
+                local sessions
+                sessions=$(tmux ls 2>/dev/null | cut -d: -f1)
+                
+                if [[ -z "$sessions" ]]; then
+                    echo "📭 没有活跃的 tmux 会话" >&2
+                    read -rp "按任意键继续..." -n 1 -s
+                    continue
+                fi
+                
+                local target_session
+                target_session=$(echo "$sessions" | fzf --prompt="选择要删除的会话 > " --header="按 ESC 返回")
+                
+                if [[ -n "$target_session" ]]; then
+                    tmux kill-session -t "$target_session"
+                    echo "✅ 已删除会话 '$target_session'" >&2
+                    read -rp "按任意键继续..." -n 1 -s
+                fi
+                ;;
+                
+            "❌ 退出")
+                break
+                ;;
+                
+            *)
+                break
+                ;;
+        esac
+    done
 }
 
 # =============================================================================
-# Prompt Configuration
+# 提示符配置
 # =============================================================================
 
 __set_prompt() {
     local exit_code=$?
     
-    # Split time for the original format (HH:MM :SS)
     local full_time
     full_time=$(date +%T 2>/dev/null) || full_time="??:??:??"
-    local time1="${full_time%:*}"  # HH:MM
-    local time2="${full_time##*:}"  # SS
+    local time1="${full_time%:*}"
+    local time2="${full_time##*:}"
     
-    # User@host with colors (red+underline+blink for root, blue for normal user)
     local user_color="\[\033[1;34m\]"
     [[ $UID -eq 0 ]] && user_color="\[\033[1;31m\]\[\033[4m\]\[\033[5m\]"
     local user_host="${user_color}$(whoami)\[\033[m\]"
     
-    # Smart path display
     local smart_path
     smart_path="$(__smart_pwd)"
     
-    # Git branch if in repo
     local git_info
     git_info="$(__git_branch)"
     
-    # Status indicator (green for success, red with code for failure)
     local status_color="\[\033[1;32m\]"
     local status_text=""
     if [[ $exit_code -ne 0 ]]; then
@@ -453,44 +677,20 @@ __set_prompt() {
         status_text="${exit_code}"
     fi
     
-    # Build beautiful two-line PS1 (matching your original design)
     PS1="\[\033[m\]┌─\[\033[1;31m\][\[\033[m\]$0-$$ ${time1}\[\033[25m\]:\[\033[m\]${time2} ${user_host}\[\033[1;31m\]@\[\033[34m\]\h ${smart_path}\[\033[1;31m\]]\[\033[m\]${git_info}
 └─${status_color}${status_text}\$>>_\[\033[m\] "
     
-    # Secondary prompts
     PS2='\[\033[1;33m\][Line $LINENO]>\[\033[m\]'
     PS3='\[\033[1;35m\][[$0]Select > \[\033[m\]'
     PS4='\[\033[1;35m\][[$0] Line $LINENO:> \[\033[m\]'
 }
 
-# =============================================================================
-# Pre/Post Command Execution Hooks
-# =============================================================================
-
-__pre_exec() {
-    # Capture command before execution
-    if [[ -z "$__in_prompt" ]]; then
-        __last_command="$BASH_COMMAND"
-        __timing_start
-    fi
-}
-
-__post_exec() {
-    __in_prompt=1
-    __timing_end
-    __set_prompt
-    unset __in_prompt
-}
-
-# Set up execution hooks
-trap '__pre_exec' DEBUG
-PROMPT_COMMAND="__post_exec"
+PROMPT_COMMAND='__set_prompt'
 
 # =============================================================================
-# Aliases - File Operations
+# 文件操作别名
 # =============================================================================
 
-# Use modern ls replacements if available
 if command -v eza &>/dev/null; then
     alias ls='eza --color=auto --icons --group-directories-first'
     alias l='eza -lbah --icons'
@@ -513,44 +713,26 @@ else
 fi
 
 alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
 alias diff='diff --color=auto'
 
 # =============================================================================
-# Aliases - Navigation
+# 导航别名
 # =============================================================================
 
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
-alias cdl='cd -'
 alias cdroot='cd /'
 alias home='cd ~'
 alias config='cd ~/.config'
 alias cache='cd ~/.cache'
-alias docs='cd ~/Documents 2>/dev/null || cd ~'
-alias downloads='cd ~/Downloads 2>/dev/null || cd ~'
+alias doc='cd ~/Documents 2>/dev/null || cd ~'
+alias down='cd ~/Downloads 2>/dev/null || cd ~'
 
 # =============================================================================
-# Aliases - System Information
+# 系统管理别名
 # =============================================================================
-
-# System info with fallbacks
-sysinfo() {
-    if command -v fastfetch &>/dev/null; then
-        fastfetch 2>/dev/null
-    elif command -v neofetch &>/dev/null; then
-        neofetch 2>/dev/null
-    elif command -v screenfetch &>/dev/null; then
-        screenfetch 2>/dev/null
-    else
-        echo "OS: $(uname -s) $(uname -r)"
-        echo "Shell: $BASH_VERSION"
-        echo "Uptime: $(uptime -p 2>/dev/null || uptime)"
-    fi
-}
 
 alias sysenable='sudo systemctl enable --now'
 alias sysdisable='sudo systemctl disable --now'
@@ -561,86 +743,270 @@ alias sysstatus='sudo systemctl status'
 alias boottime='systemd-analyze 2>/dev/null || echo "systemd-analyze not available"'
 
 # =============================================================================
-# Aliases - Git (Comprehensive)
+# Git别名
 # =============================================================================
 
 alias g='git'
-alias gs='git status'
-alias ga='git add'
-alias gaa='git add --all'
-alias gc='git commit'
-alias gcm='git commit -m'
-alias gp='git push'
-alias gl='git pull'
-alias gf='git fetch'
-alias gd='git diff'
-alias gds='git diff --staged'
-alias glog='git log --oneline --graph --all'
-alias gco='git checkout'
-alias gb='git branch'
-alias gba='git branch -a'
-alias gm='git merge'
-alias gr='git rebase'
-alias gt='git tag'
-alias gst='git stash'
-alias gstp='git stash pop'
-alias gstl='git stash list'
-alias gclean='git clean -fd'
+alias ginit='git init'
+alias gclone='git clone --recursive --depth=1'
+alias gadd='git add'
+alias gcommit='git commit'
+alias gpush='git push'
+alias gpull='git pull'
+alias gfetch='git fetch'
+alias gmerge='git merge'
+alias grebase='git rebase'
+alias gstatus='git status'
+alias gbranch='git branch'
+alias gcheckout='git checkout'
+alias glog='git log'
+alias gloggraph='git log --graph --oneline --all'
+alias gdiff='git diff'
+alias gdiffstaged='git diff --staged'
+alias gupdate='git add . && git commit -m "fix bugs and add new features"'
+alias pushremote='git add . && git commit -m "fix bugs and add new features" && git pull origin master && git push origin master'
+alias gc1='git clone --recursive --depth=1'
+alias gnewbranch='git checkout -b'
+alias gswitch='git switch'
+alias gsync='git pull origin'
+alias gsyncrebase='git pull --rebase origin'
 alias greset='git reset --hard'
 alias grestore='git restore'
-alias gclone='git clone --recursive --depth=1'
-alias ginit='git init'
+alias grestorestaged='git restore --staged'
+alias gclean='git clean -fd'
+alias gtag='git tag'
+alias gstash='git stash'
+alias gstashpop='git stash pop'
+alias gstashlist='git stash list'
+alias gremote='git remote'
+alias gremoteadd='git remote add'
+alias gremoteurl='git remote set-url'
+alias gprune='git remote prune origin'
 
-# Quick workflows
-alias gupdate='git add . && git commit -m "update"'
-alias gsync='git pull --rebase && git push'
+gwhatchange() {
+    git log --oneline | head -20
+    read -rp "📝 输入哈希值查看文件: " hash
+    if [[ -n "$hash" ]]; then
+        git show "$hash"
+    fi
+}
 
 # =============================================================================
-# Aliases - Docker (if available)
+# Docker别名和函数
 # =============================================================================
 
 if command -v docker &>/dev/null; then
     alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"'
-    alias dpsa='docker ps -a'
-    alias dimages='docker images'
-    alias drun='docker run -it --rm'
-    alias dstop='docker stop'
-    alias dstart='docker start'
-    alias drm='docker rm -f'
-    alias drmi='docker rmi -f'
+    alias dpsa='docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"'
     alias dex='docker exec -it'
-    alias dlog='docker logs -f --tail 100'
+    alias dlogs='docker logs -f --tail 100'
+    alias dstart='docker start'
+    alias dstop='docker stop'
+    alias drestart='docker restart'
+    alias dkill='docker kill'
+    alias drm='docker rm -f'
+    alias drun='docker run -it --rm'
+    alias dimages='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.ID}}"'
+    alias drmi='docker rmi -f'
+    alias dbuild='docker build --no-cache -t'
     alias dpull='docker pull'
-    alias dpush='docker push'
-    alias dlogin='docker login'
     
-    # Helper functions
-    denter() {
-        local container
-        container=$(docker ps --format '{{.Names}}' | grep "$1" | head -1)
-        if [[ -z "$container" ]]; then
-            echo "Container not found: $1" >&2
+    if command -v docker-compose &>/dev/null; then
+        COMPOSE_CMD="docker-compose"
+    else
+        COMPOSE_CMD="docker compose"
+    fi
+    
+    alias dcup="$COMPOSE_CMD up -d"
+    alias dcdown="$COMPOSE_CMD down"
+    alias dcbuild="$COMPOSE_CMD build --no-cache"
+    alias dcrestart="$COMPOSE_CMD restart"
+
+    dtop() {
+        if ! docker ps -q 2>/dev/null | grep -q .; then
+            echo "🚫 没有运行中的容器"
             return 1
         fi
-        docker exec -it "$container" /bin/sh
+        docker stats --no-stream --format "table {{.Name}}\t{{.MemPerc}}\t{{.MemUsage}}\t{{.CPUPerc}}" | \
+        sort -k2 -hr | head -21
     }
     
-    dtopmem() {
-        docker stats --no-stream --format "table {{.Name}}\t{{.MemPerc}}\t{{.MemUsage}}\t{{.CPUPerc}}" | \
-        sort -k2 -hr | head -20
+    dip() {
+        if [[ $# -eq 0 ]]; then
+            docker ps --format '{{.Names}}' | while read -r container; do
+                local ip
+                ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' "$container" 2>/dev/null)
+                if [[ -n "$ip" ]]; then
+                    printf "%-30s %s\n" "$container" "$ip"
+                fi
+            done
+        else
+            for container in "$@"; do
+                local ip
+                ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$container" 2>/dev/null)
+                if [[ -n "$ip" ]]; then
+                    echo "🌐 $ip"
+                else
+                    echo "❌ 容器 '$container' 不存在" >&2
+                    return 1
+                fi
+            done
+        fi
     }
+    
+    denter() {
+        if [[ $# -eq 0 ]]; then
+            echo "📝 Usage: denter <container>"
+            return 1
+        fi
+        
+        local container="$1"
+        
+        if ! docker ps --format '{{.Names}}' | grep -qx "$container"; then
+            if docker ps -a --format '{{.Names}}' | grep -qx "$container"; then
+                docker start "$container"
+            else
+                echo "❌ 容器不存在" >&2
+                return 1
+            fi
+        fi
+        
+        if docker exec "$container" test -f /bin/bash 2>/dev/null; then
+            docker exec -it "$container" bash
+        elif docker exec "$container" test -f /bin/sh 2>/dev/null; then
+            docker exec -it "$container" sh
+        else
+            echo "❌ 未找到 shell" >&2
+            return 1
+        fi
+    }
+    
+    dcp() {
+        if [[ $# -ne 2 ]]; then
+            echo "📝 Usage: dcp <src> <dst>"
+            return 1
+        fi
+        docker cp "$1" "$2"
+    }
+    
+    drestore() {
+        local running
+        running=$(docker ps -q 2>/dev/null)
+        [[ -n "$running" ]] && docker stop $running 2>/dev/null
+        
+        local all
+        all=$(docker ps -aq 2>/dev/null)
+        [[ -n "$all" ]] && docker rm -f $all 2>/dev/null
+        
+        local volumes
+        volumes=$(docker volume ls -q 2>/dev/null)
+        [[ -n "$volumes" ]] && docker volume rm -f $volumes 2>/dev/null
+        
+        local images
+        images=$(docker images -q 2>/dev/null)
+        [[ -n "$images" ]] && docker rmi -f $images 2>/dev/null
+        
+        local networks
+        networks=$(docker network ls -q -f type=custom 2>/dev/null)
+        [[ -n "$networks" ]] && docker network rm $networks 2>/dev/null
+        
+        docker builder prune -af 2>/dev/null
+        docker system prune -af --volumes 2>/dev/null
+        
+        echo "🔄 Docker 已重置"
+    }
+
+    dvol() {
+        if [[ $# -lt 3 ]]; then
+            echo "📝 Usage: dvol <volume-name> <container-path> <image> [args...]"
+            echo "💡 Example: dvol my-data /app/data nginx"
+            return 1
+        fi
+        
+        local vol="$1"
+        local mount="$2"
+        local image="$3"
+        shift 3
+        local rest=("$@")
+        
+        if ! docker volume inspect "$vol" >/dev/null 2>&1; then
+            echo "📦 Creating volume '$vol'..."
+            docker volume create "$vol"
+        fi
+        
+        echo "🚀 Running $image with $vol → $mount"
+        docker run -v "$vol:$mount" "${rest[@]}" "$image"
+    }
+
+    dvollist() {
+        if ! command -v docker &>/dev/null; then
+            echo "❌ Docker not installed" >&2
+            return 1
+        fi
+        
+        if ! docker info >/dev/null 2>&1; then
+            echo "❌ Docker daemon not running" >&2
+            return 1
+        fi
+
+        local is_first=1
+        
+        while IFS= read -r vol; do
+            local mountpoint
+            mountpoint=$(docker volume inspect --format '{{.Mountpoint}}' "$vol" 2>/dev/null)
+            
+            if [[ $is_first -eq 0 ]]; then
+                echo ""
+            fi
+            is_first=0
+            
+            echo "📦 $vol"
+            echo "   🖥️  Host: $mountpoint"
+            
+            local used=0
+            while IFS= read -r cid; do
+                local cname
+                cname=$(docker inspect --format '{{.Name}}' "$cid" 2>/dev/null | sed 's/^\///')
+                
+                local mounts
+                mounts=$(docker inspect --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}}|{{.Destination}}{{println}}{{end}}{{end}}' "$cid" 2>/dev/null)
+                
+                while IFS= read -r mount_info; do
+                    if [[ -n "$mount_info" ]]; then
+                        local m_vol="${mount_info%%|*}"
+                        local m_dest="${mount_info##*|}"
+                        
+                        if [[ "$m_vol" == "$vol" ]]; then
+                            used=1
+                            echo "   └── 🐳 $cname → $m_dest"
+                        fi
+                    fi
+                done <<< "$mounts"
+            done < <(docker ps -aq 2>/dev/null)
+            
+            if [[ $used -eq 0 ]]; then
+                echo "   └── ⚪ (not mounted by any container)"
+            fi
+        done < <(docker volume ls -q 2>/dev/null)
+        
+        if [[ $is_first -eq 1 ]]; then
+            echo "📭 No volumes found"
+        fi
+    }
+    
 fi
 
+
 # =============================================================================
-# Aliases - Common Utilities
+# 常用工具别名
 # =============================================================================
 
-# Sudo shortcuts
 alias sudo='sudo '
 alias _='sudo'
 alias sus='sudo -s'
+alias uncd='cd -'
 
-# Editor preferences (fallback chain)
+
 if command -v micro &>/dev/null; then
     alias e='micro'
     alias vim='micro'
@@ -653,12 +1019,9 @@ fi
 
 alias bashrc='${EDITOR:-micro} ~/.bashrc'
 
-# Process monitoring (cross-platform compatible)
 topcpu() {
     if command -v ps &>/dev/null; then
-        # GNU ps (Linux)
         ps aux --sort=-%cpu 2>/dev/null | head -11 || \
-        # BSD ps (macOS)
         ps aux -o %cpu,rss,command | sort -rn | head -11
     else
         top -o cpu 2>/dev/null || echo "Process monitoring not available"
@@ -667,45 +1030,35 @@ topcpu() {
 
 topmem() {
     if command -v ps &>/dev/null; then
-        # GNU ps (Linux)
         ps aux --sort=-%mem 2>/dev/null | head -11 || \
-        # BSD ps (macOS)
         ps aux -o %mem,rss,command | sort -rn | head -11
     else
         top -o mem 2>/dev/null || echo "Process monitoring not available"
     fi
 }
 
-# Disk usage
 alias ducks='du -cksh * 2>/dev/null | sort -hr | head'
 alias dusort='du -sh * 2>/dev/null | sort -hr'
 alias diskinfo='df -h 2>/dev/null && echo && lsblk 2>/dev/null'
 
-# Network utilities
-alias myip='curl -s https://api.ipify.org 2>/dev/null || echo "Cannot determine IP"'
 alias ports='ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null'
 
-# Archive operations
-alias mktar='tar -czvf'
 alias untar='tar -xzvf'
 alias mktbz='tar -cjvf'
 alias untbz='tar -xjvf'
 
-# Permissions
 alias chmodx='chmod +x'
 alias chownme='sudo chown -R $USER:$USER'
 
-# DNS
 alias flushdns='sudo resolvectl flush-caches 2>/dev/null || sudo systemd-resolve --flush-caches 2>/dev/null || echo "DNS flush not supported"'
 
 alias py='python3'
 
 # =============================================================================
-# Completion Setup
+# 补全配置
 # =============================================================================
 
 if ! shopt -oq posix; then
-    # Try multiple completion locations for portability
     for comp_file in \
         /usr/share/bash-completion/bash_completion \
         /etc/bash_completion \
@@ -719,23 +1072,10 @@ if ! shopt -oq posix; then
     done
 fi
 
-# Custom completions for path bookmarks
-_comp_bookmarks() {
-    local cur
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    
-    if [[ -r "$PATHS_SAVE_FILE" ]]; then
-        COMPREPLY=($(compgen -W "$(cut -d'=' -f1 "$PATHS_SAVE_FILE" 2>/dev/null)" -- "$cur"))
-    fi
-}
-
-complete -F _comp_bookmarks byd rmpath 2>/dev/null || true
-
 # =============================================================================
-# Key Bindings
+# 按键绑定
 # =============================================================================
 
-# Enhanced tab completion
 bind 'set show-all-if-ambiguous on'
 bind 'set menu-complete-display-prefix on'
 bind '"\t": menu-complete'
@@ -743,52 +1083,23 @@ bind '"\e[Z": menu-complete-backward'
 bind 'set colored-stats on'
 bind 'set colored-completion-prefix on'
 
-# Tmux manager shortcut
 bind -x '"\C-x\C-t": tmuxmgr' 2>/dev/null || true
 
-# History search
 bind '"\C-r": reverse-search-history'
 
-# =============================================================================
-# Startup Display
-# =============================================================================
-
-if [[ -z "$SUDO_USER" && $$ -ne 1 ]]; then
-    # Try system info tools in order of preference
-    if command -v fastfetch &>/dev/null; then
-        fastfetch --logo arch 2>/dev/null || fastfetch 2>/dev/null
-    elif command -v neofetch &>/dev/null; then
-        neofetch 2>/dev/null
-    fi
-fi
 
 # =============================================================================
-# Cleanup on Exit
+# 用户自定义配置加载
 # =============================================================================
 
-__cleanup() {
-    # Remove temporary runtime directory
-    if [[ -d "$RAMFS_DIR" && "$RAMFS_DIR" =~ bashrc_data_[0-9]+$ ]]; then
-        rm -rf "$RAMFS_DIR" 2>/dev/null
-    fi
-}
-
-trap __cleanup EXIT
-
-# =============================================================================
-# User Customizations
-# =============================================================================
-
-# Load user-specific aliases and functions
 [[ -f "${HOME}/.bash_aliases" ]] && source "${HOME}/.bash_aliases"
 [[ -f "${HOME}/.bash_functions" ]] && source "${HOME}/.bash_functions"
 
-# Initialize fzf if available
 _fzf_init_paths=(
-    /usr/share/fzf/shell/key-bindings.bash      # Fedora/RHEL
-    /usr/share/fzf/key-bindings.bash            # Arch Linux
-    /usr/share/doc/fzf/examples/key-bindings.bash  # Debian/Ubuntu (doc package)
-    "${SYSROOT}/usr/share/fzf/key-bindings.bash"   # Termux
+    /usr/share/fzf/shell/key-bindings.bash
+    /usr/share/fzf/key-bindings.bash
+    /usr/share/doc/fzf/examples/key-bindings.bash
+    "${SYSROOT}/usr/share/fzf/key-bindings.bash"
 )
 
 for fzf_binding in "${_fzf_init_paths[@]}"; do
@@ -799,7 +1110,4 @@ for fzf_binding in "${_fzf_init_paths[@]}"; do
 done
 unset _fzf_init_paths fzf_binding
 
-# Initialize zoxide if available
-if command -v zoxide &>/dev/null; then
-    eval "$(zoxide init bash 2>/dev/null)" || true
-fi
+
