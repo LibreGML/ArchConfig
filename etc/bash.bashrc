@@ -1111,7 +1111,7 @@ done
 unset _fzf_init_paths fzf_binding
 
 
-function y() {
+function yazi() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"
