@@ -1,5 +1,4 @@
 30d98f9b2.neovide-cursor
-aaron-bond.better-comments
 alexanderte.dainty-vscode
 alibaba-cloud.tongyi-lingma
 atommaterial.a-file-icon-vscode
@@ -13,7 +12,6 @@ esbenp.prettier-vscode
 formulahendry.auto-close-tag
 formulahendry.auto-rename-tag
 formulahendry.code-runner
-github.copilot-chat
 hb0730.uniapp-run
 hollowtree.vue-snippets
 hoovercj.vscode-power-mode
@@ -21,7 +19,6 @@ kisstkondoros.vscode-gutter-preview
 mads-hartmann.bash-ide-vscode
 manasxx.background-cover
 matijao.vue-nuxt-snippets
-mightbesimon.emoji-icons
 mrmaoddxxaa.create-uniapp-view
 ms-ceintl.vscode-language-pack-zh-hans
 ms-python.debugpy

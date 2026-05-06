@@ -3,7 +3,7 @@
 /* ---- 基本配置 ---- */
 
 configuration {
-	font:						"Fira Code SemiBold 12";
+	font:						"Maple Mono NF CN SemiBold 12";
 	modi:                       "drun,run,filebrowser";  // 启动模式：桌面应用、运行命令、文件浏览器
     show-icons:                 true;  // 显示应用程序图标
     display-drun:               "Apps";  // 桌面应用模式标签名称
@@ -204,7 +204,7 @@ element-icon {
     cursor:                      inherit;  // 鼠标指针继承父元素
 }
 element-text {
-    font:						"Fira Code SemiBold 12";  // 字体：Fira Code 半粗体 12 号
+    font:						"Maple Mono NF CN SemiBold 12";  
     background-color:            transparent;  // 文字背景透明
     text-color:                  inherit;  // 文字颜色继承
     cursor:                      inherit;  // 鼠标指针继承父元素

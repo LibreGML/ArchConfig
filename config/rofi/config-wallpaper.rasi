@@ -43,7 +43,7 @@ element-icon {
 }
 
 element-text {
-  font: "Fira Code SemiBold 12";
+  font: "Maple Mono NF CN SemiBold 12";
   vertical-align: 0.5;
   horizontal-align: 0.5;
 }

@@ -181,9 +181,7 @@ install_core_deps() {
         'swappy'
         'grim'
         'slurp'
-        'ttf-fira-code'
-        'ttf-jetbrains-mono'
-        'ttf-victor-mono-nerd'
+        'ttf-maplemono-nf-cn'
         'noto-fonts'
         'noto-fonts-cjk'
         'noto-fonts-emoji'
@@ -193,11 +191,15 @@ install_core_deps() {
         'nodejs'
         'npm'
         'jdk21-openjdk'
+        'maven'
+        'uv'
         'ntfs-3g'
         'btop'
+        'tmux'
         'android-tools'
         'clash-verge-rev'
         'mihomo'
+        'downgrade'
         'efibootmgr'
         'httping'
         'network-manager-applet'
@@ -1140,7 +1142,7 @@ main() {
     echo "=========================================="
     echo ""
     warning "注意："
-    warning "1. VSCode 与 Android Studio 需要手动配置"
+    warning "1. VSCode 需要手动配置, GTK主题需在nwg-look进一步配置"
     
     if command -v grub-mkconfig &> /dev/null && [ -d "/boot/grub" ]; then
         log "2. GRUB 已检测到，配置已自动更新"
