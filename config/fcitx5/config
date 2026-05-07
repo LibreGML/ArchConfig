@@ -1,28 +1,25 @@
 [Hotkey]
-# 按住切换键的修饰键时进行轮换切换
-EnumerateWithTriggerKeys=True
-# 向前切换输入法
+# Enumerate when holding modifier of Toggle key
+EnumerateWithTriggerKeys=False
+# Activate Input Method
+ActivateKeys=
+# Deactivate Input Method
+DeactivateKeys=
+# Temporarily Toggle Input Method
+AltTriggerKeys=
+# Enumerate Input Method Forward
 EnumerateForwardKeys=
-# 向后切换输入法
+# Enumerate Input Method Backward
 EnumerateBackwardKeys=
-# 轮换输入法时跳过第一个输入法
+# Skip first input method while enumerating
 EnumerateSkipFirst=False
-# 触发修饰键快捷键的时限 (毫秒)
+# Toggle embedded preedit
+TogglePreedit=
+# Time limit in milliseconds for triggering modifier key shortcuts
 ModifierOnlyKeyTimeout=250
 
 [Hotkey/TriggerKeys]
 0=Shift+Shift_L
-1=Zenkaku_Hankaku
-2=Hangul
-
-[Hotkey/ActivateKeys]
-0=Hangul_Hanja
-
-[Hotkey/DeactivateKeys]
-0=Hangul_Romaja
-
-[Hotkey/AltTriggerKeys]
-0=Shift_L
 
 [Hotkey/EnumerateGroupForwardKeys]
 0=Super+space
@@ -42,31 +39,28 @@ ModifierOnlyKeyTimeout=250
 [Hotkey/NextCandidate]
 0=Tab
 
-[Hotkey/TogglePreedit]
-0=Control+Alt+P
-
 [Behavior]
-# 默认状态为激活
+# Active By Default
 ActiveByDefault=False
-# 重新聚焦时重置状态
+# Reset state on Focus In
 resetStateWhenFocusIn=No
-# 共享输入状态
-ShareInputState=No
-# 在程序中显示预编辑文本
+# Share Input State
+ShareInputState=All
+# Show preedit in application
 PreeditEnabledByDefault=True
-# 切换输入法时显示输入法信息
+# Show Input Method Information when switch input method
 ShowInputMethodInformation=True
-# 在焦点更改时显示输入法信息
+# Show Input Method Information when changing focus
 showInputMethodInformationWhenFocusIn=False
-# 显示紧凑的输入法信息
+# Show compact input method information
 CompactInputMethodInformation=True
-# 显示第一个输入法的信息
+# Show first input method information
 ShowFirstInputMethodInformation=True
-# 默认页大小
-DefaultPageSize=5
-# 覆盖 XKB 选项
+# Default page size
+DefaultPageSize=7
+# Override XKB Option
 OverrideXkbOption=False
-# 自定义 XKB 选项
+# Custom XKB Option
 CustomXkbOption=
 # Force Enabled Addons
 EnabledAddons=
@@ -74,10 +68,10 @@ EnabledAddons=
 DisabledAddons=
 # Preload input method to be used by default
 PreloadInputMethod=True
-# 允许在密码框中使用输入法
+# Allow input method in the password field
 AllowInputMethodForPassword=False
-# 输入密码时显示预编辑文本
+# Show preedit text when typing password
 ShowPreeditForPassword=False
-# 保存用户数据的时间间隔（以分钟为单位）
-AutoSavePeriod=1000
+# Interval of saving user data in minutes
+AutoSavePeriod=30
 
