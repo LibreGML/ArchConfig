@@ -253,7 +253,7 @@ install_core_deps() {
         'net-tools'
         'libspng'
         'obs-studio'
-        'tldr'
+        'tealdeer'
         'syncthing'
         'tlp' 
         'tlp-rdw'

@@ -727,6 +727,7 @@ if command -v git &>/dev/null; then
     alias gdiffstaged='git diff --staged'
     
     alias greset='git reset --hard'
+    alias gundo='git reset --soft HEAD~1'
     alias grestore='git restore'
     alias grestorestaged='git restore --staged'
     alias gclean='git clean -fd'

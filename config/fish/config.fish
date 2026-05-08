@@ -1324,6 +1324,7 @@ if status is-interactive
         alias gsync='git pull origin'
         alias gsyncrebase='git pull --rebase origin'
         alias greset='git reset --hard'
+        alias gundo='git reset --soft HEAD~1' 
         alias grestore='git restore'
         alias grestorestaged='git restore --staged'
         alias gclean='git clean -fd'
