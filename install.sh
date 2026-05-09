@@ -255,6 +255,7 @@ install_core_deps() {
         'obs-studio'
         'tealdeer'
         'syncthing'
+        'httrack'
         'tlp' 
         'tlp-rdw'
         'tlpui' 
