@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 SCRIPTSDIR=$HOME/.config/hypr/scripts
-UserScripts=$HOME/.config/hypr/UserScripts
 
 file_exists() {
   if [ -e "$1" ]; then
@@ -41,9 +40,5 @@ sleep 0.3
 swaync >/dev/null 2>&1 &
 swaync-client --reload-config
 
-sleep 1
-if file_exists "${UserScripts}/RainbowBorders.sh"; then
-  ${UserScripts}/RainbowBorders.sh &
-fi
 
 exit 0

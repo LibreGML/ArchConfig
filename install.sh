@@ -785,9 +785,7 @@ deploy_configs() {
     if [ -d "$CURRENT_USER_HOME/.config/hypr/scripts" ]; then
         find "$CURRENT_USER_HOME/.config/hypr/scripts" -type f -exec chmod +x {} \; 2>/dev/null || true
     fi
-    if [ -d "$CURRENT_USER_HOME/.config/hypr/UserScripts" ]; then
-        find "$CURRENT_USER_HOME/.config/hypr/UserScripts" -type f -exec chmod +x {} \; 2>/dev/null || true
-    fi
+
     
     if [ -f "$config_source/qq-flags.conf" ]; then
         create_symlink "$config_source/qq-flags.conf" "$CURRENT_USER_HOME/.config/qq-flags.conf"

@@ -196,7 +196,7 @@ nvim /etc/hosts
 #### 设置时区
 
 ```bash
-sudo timedatectl set-timezone Asia/Shanghai                # 设置时区
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime    # 设置时区
 hwclock --systohc                                          # 同步硬件时钟
 ```
 
@@ -1223,12 +1223,18 @@ efibootmgr    # 查看启动项
 ```bash
 wget -c https://launchpadlibrarian.net/188958703/safe-rm-0.12.tar.gz
 tar -xzvf safe-rm-0.12.tar.gz
-sudo mv safe-rm /usr/local/bin/rm
-sudo chown root:root /usr/local/bin/rm
+sudo mv safe-rm /usr/local/bin/
 ```
 
+编辑 `~/.bashrc` 或 `~/.zshrc`:
+
+```bash
+alias rm=/usr/local/bin/safe-rm
+```
 
 ### 12.2 配置保护目录
+
+编辑 `/etc/safe-rm.conf`:
 
 ```bash
 sudo nvim /etc/safe-rm.conf
@@ -1281,10 +1287,10 @@ sudo systemctl enable --now cups
 
 1. `sudo pacman -S hplip hplip-plugin`
 2. 进入[CUPS配置界面](http://localhost:631/admin), 点击 **Add Printer**, 看到Local Printers有个HP Printer (HPLIP) ， 继续后输入打印机的IP地址，比如http://10.10.84.25，名字那些随便填， 继续后，Make里面选择HP, 继续后可以看到驱动列表， 找`HP LaserJet M1536dnf MFP Postscript (en, en, da, de, es, fi, fr, it, ja, ko, nb, nl, pt, ru, sv, zh_CN, zh_TW) `, 选中后Add Printer即可。
-3. 扫描功能安装 `sudo pacman -Sy sane sane-airscan libinsane simple-scan`, 把用户添加进scanner组 `sudo usermod -aG scanner,lp $USER`。
-4. `hp-makeuri 10.10.84.25`， 生成设备 URI，会输出`SANE URI: hpaio:/net/HP_LaserJet_M1536dnf_MFP?ip=10.10.84.25`
-5. `sudo hp-setup -i 10.10.84.25` ，添加打印机， 也可以` sudo -E env DISPLAY=$DISPLAY hp-setup`， 但必须先 `sudo pacman -S python-pyqt5`
-6. `scanimage --device-name="hpaio:/net/HP_LaserJet_M1536dnf_MFP?ip=10.10.84.25" --format=png > ~/scan.png` , 测试打印， 这时候会有点糊。
+3. 如果要扫描功能，需要安装 `sudo pacman -Sy sane sane-airscan libinsane simple-scan`, 把用户添加进scanner组 `sudo usermod -aG scanner,lp $USER`，
+4. 然后 `hp-makeuri 10.10.84.25`， 生成设备 URI，会输出`SANE URI: hpaio:/net/HP_LaserJet_M1536dnf_MFP?ip=10.10.84.25`
+5. `sudo hp-setup -i 10.10.84.25` ，添加设备
+6. `scanimage --device-name="hpaio:/net/HP_LaserJet_M1536dnf_MFP?ip=10.10.84.25" --format=png > ~/scan.png` , 测试扫描功能， 这时候会有点糊。
 7. 成功之后换simple-scan, 就能看到设备了，点左上角Scan。
 
 
@@ -1474,7 +1480,8 @@ ip route get 223.5.5.5  # 验证
 docker pull archlinux:multilib-devel-20260329.0.507017
 
 # 创建容器
-p
+docker run -it --name my_arch_test archlinux:multilib-devel-20260329.0.507017 /bin/bash
+
 # 设置root密码
 passwd root
 

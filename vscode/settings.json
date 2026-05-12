@@ -43,7 +43,6 @@
   "Lingma.PreferredLanguage forCommitMessage": "简体中文",
   "Lingma.aI Chat.commandAllowlistInAgentMode": "mkdir,cd,./test-cli-server.sh,./nw,ps,grep,head,echo,ss,bash",
   "explorer.confirmPasteNative": false,
-  "window.newWindowProfile": "默认",
   "terminal.integrated.cursorBlinking": true,
   "terminal.integrated.allowInUntrustedWorkspace": true,
   "terminal.integrated.defaultProfile.linux": "bash",
@@ -63,4 +62,9 @@
   "terminal.integrated.fontFamily": "Maple Mono NF CN",
   "terminal.integrated.fontLigatures.enabled": true,
   "terminal.integrated.fontWeight": "bold",
+  "editor.language.colorizedBracketPairs": [],
+  "window.newWindowProfile": "Default",
+  "chat.editing.confirmEditRequestRetry": false,
+  "Lua.codeLens.enable": true,
+  "Lua.completion.callSnippet": "Both",
 }

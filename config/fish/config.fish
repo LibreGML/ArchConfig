@@ -94,7 +94,7 @@ if status is-interactive
     alias zshrc="$ED $HOME/.zshrc"
     alias fishrc="$ED $HOME/.config/fish/config.fish"
     alias kittyconf="$ED $HOME/.config/kitty/kitty.conf"
-    alias hyprconf="$ED $HOME/.config/hypr/hyprland.conf"
+    alias hyprconf="$ED $HOME/.config/hypr/hyprland.lua"
     alias microconf="$ED $HOME/.config/micro/settings.json"
 
     alias bashrc="sudo $ED /etc/bash.bashrc"
@@ -181,6 +181,8 @@ if status is-interactive
     alias py='python3'
     alias h='history'
     alias als='alias'
+    alias x='extract'
+
     
     if test "$DISTRO_TYPE" = "arch"
         if command -q grub-mkconfig
@@ -243,9 +245,6 @@ if status is-interactive
         alias startvnc='WLR_RDP_TX_CAPTURE_ALL_KEYS=1 wayvnc -v 0.0.0.0 5900'
     end
     
-    if command -q extract
-        alias x='extract'
-    end
     
     if command -q tldr
         alias man='tldr'

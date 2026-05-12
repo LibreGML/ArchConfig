@@ -20,13 +20,13 @@ mads-hartmann.bash-ide-vscode
 manasxx.background-cover
 matijao.vue-nuxt-snippets
 mrmaoddxxaa.create-uniapp-view
-ms-ceintl.vscode-language-pack-zh-hans
 ms-python.debugpy
 ms-python.python
 ms-python.vscode-pylance
 oderwat.indent-rainbow
 pranaygp.vscode-css-peek
 sdras.vue-vscode-snippets
+sumneko.lua
 techer.open-in-browser
 tomoki1207.pdf
 vincaslt.highlight-matching-tag
