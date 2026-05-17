@@ -158,6 +158,10 @@ hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd(scriptsDir .. "/WaybarLayout.sh"))
 hl.bind("SHIFT + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind("SHIFT + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
+-- ── 滚动布局 ──
+hl.bind("SUPER + equal", hl.dsp.layout("colresize +0.1"))
+hl.bind("SUPER + minus", hl.dsp.layout("colresize -0.1")) 
+hl.bind("SUPER + SHIFT + Return", hl.dsp.layout("consume_or_expel next"))
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- 触摸板手势
@@ -167,10 +171,7 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 hl.gesture({ fingers = 3, direction = "up", action = function() hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) end })
 hl.gesture({ fingers = 3, direction = "down", action = function() hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) end })
 hl.gesture({ fingers = 3, direction = "down", mods = "CTRL", action = "close" })
-hl.gesture({ fingers = 4, direction = "down", mods = "CTRL", action = function() hl.exec_cmd("kitty") end })
-hl.gesture({ fingers = 4, direction = "up", mods = "CTRL", action = function() hl.exec_cmd("thunar") end })
-hl.gesture({ fingers = 3, direction = "down", mods = "ALT", action = function() hl.exec_cmd("hyprshot -m window -m active -z --clipboard-only") end })
-hl.gesture({ fingers = 3, direction = "up", mods = "ALT", action = function() hl.exec_cmd("hyprlock") end })
+hl.gesture({ fingers = 4, direction = "horizontal", action = "scroll_move" })
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -254,8 +255,10 @@ hl.config({ decoration = { rounding = 20, active_opacity = 0.87, inactive_opacit
 
 hl.config({ dwindle = { preserve_split = true, special_scale_factor = 0.8 } })
 hl.config({ master = { new_status = "master", new_on_top = true, mfact = 0.5 } })
+hl.config({ scrolling = { column_width = 0.45 } })
 
-hl.config({ general = { border_size = 2, gaps_in = 6, gaps_out = 8, resize_on_border = true, col = { active_border = { colors = { "rgba(00ffffff)", "rgba(00ccffff)", "rgba(0099ffff)", "rgba(3366ffff)", "rgba(6633ffff)", "rgba(9900ffff)", "rgba(cc00ffff)", "rgba(ff00ffff)", "rgba(ff33ccff)", "rgba(ff6699ff)" }, angle = 270 }, inactive_border = { colors = { "rgba(003366ff)", "rgba(004488ff)", "rgba(005599ff)", "rgba(0066aaff)", "rgba(0077bbff)", "rgba(0088ccff)", "rgba(0099ddff)", "rgba(00aaeeff)", "rgba(00bbffff)", "rgba(11ccffff)" }, angle = 270 } }, layout = "dwindle" } })
+
+hl.config({ general = { border_size = 2, gaps_in = 6, gaps_out = 8, resize_on_border = true, col = { active_border = { colors = { "rgba(00ffffff)", "rgba(00ccffff)", "rgba(0099ffff)", "rgba(3366ffff)", "rgba(6633ffff)", "rgba(9900ffff)", "rgba(cc00ffff)", "rgba(ff00ffff)", "rgba(ff33ccff)", "rgba(ff6699ff)" }, angle = 270 }, inactive_border = { colors = { "rgba(003366ff)", "rgba(004488ff)", "rgba(005599ff)", "rgba(0066aaff)", "rgba(0077bbff)", "rgba(0088ccff)", "rgba(0099ddff)", "rgba(00aaeeff)", "rgba(00bbffff)", "rgba(11ccffff)" }, angle = 270 } }, layout = "scrolling" } })
 
 hl.config({ input = { kb_layout = "us", kb_variant = "", kb_model = "", kb_options = "", kb_rules = "", repeat_rate = 50, repeat_delay = 300, sensitivity = 0, numlock_by_default = true, left_handed = false, follow_mouse = true, float_switch_override_focus = false, touchpad = { disable_while_typing = true, natural_scroll = false, clickfinger_behavior = false, middle_button_emulation = true, tap_to_click = true, drag_lock = false }, touchdevice = { enabled = true }, tablet = { transform = 0, left_handed = false } } })
 
@@ -276,3 +279,9 @@ hl.config({ cursor = { no_hardware_cursors = false, enable_hyprcursor = true, wa
 -- ══════════════════════════════════════════════════════════════════════════════
 
 hl.window_rule({ name = "kitty-run-style", match = { class = "^(kitty-run)$" }, border_size = 2, rounding = 10 })
+
+--  ── Scrolling布局窗口规则 ──
+hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.5 })
+hl.window_rule({ name = "browser_width", match = { class = "^(firefox-developer-edition)$" }, scrolling_width = 0.7 })
+hl.window_rule({ name = "code_width", match = { class = "^(code)$" }, scrolling_width = 0.7 })
+hl.window_rule({ name = "office_width", match = { class = "^(ONLYOFFICE)$" }, scrolling_width = 0.7 })
