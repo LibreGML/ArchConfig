@@ -283,6 +283,7 @@ install_core_deps() {
         'brightnessctl'
         'unzip'
         'git-lfs'
+        'gnome-keyring'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
@@ -398,14 +399,12 @@ install_optional_deps() {
     log "=========================================="
     
     local opt_deps=(
-        'linuxqq'
         'visual-studio-code-bin'
         'android-studio'
         'wechat-bin'
         'onlyoffice-bin'
         'mysql'
         'sunshine'
-        'reqable-bin'
         'wechat-devtools-git'
     )
     
