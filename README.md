@@ -214,7 +214,7 @@ chmod +x install.sh
 
 ```bash
 # 基础系统工具
-sudo pacman -S hyprland kitty bash waybar swaync rofi thunar micro fcitx5 fcitx5-chinese-addons cliphist wl-clip-persist fastfetch pyprland wlogout firefox-developer-edition fzf swappy grim slurp hyprpicker eza ripgrep ttf-fira-code ttf-jetbrains-mono ttf-victor-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji hyprshot jq curl perl openssl tmux
+sudo pacman -S hyprland kitty bash waybar swaync rofi thunar micro fcitx5 fcitx5-chinese-addons cliphist wl-clip-persist fastfetch pyprland wlogout firefox fzf swappy grim slurp hyprpicker eza ripgrep ttf-fira-code ttf-jetbrains-mono ttf-victor-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji hyprshot jq curl perl openssl tmux
 
 # 音频支持
 sudo pacman -S pipewire pipewire-alsa wireplumber alsa-firmware alsa-ucm-conf sof-firmware
@@ -411,7 +411,7 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 | ` S`       | 网络搜索       | 使用 Rofi 进行网络搜索            |
 | ` W`       | 选择壁纸       | 打开壁纸选择器                    |
 | ` SHIFT C` | 屏幕取色器     | 打开 Hyprpicker 屏幕取色器        |
-| ` SHIFT B` | Firefox 浏览器 | 启动 Firefox Developer Edition    |
+| ` SHIFT B` | Firefox 浏览器 | 启动 Firefox    |
 | ` SHIFT V` | VSCode         | 启动 Visual Studio Code           |
 
 ### 📸 截图功能

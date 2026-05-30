@@ -46,6 +46,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("fcitx5 -d")    
     hl.exec_cmd("wl-paste --type text --watch cliphist store & wl-paste --type image --watch cliphist store & wl-clip-persist --clipboard regular")
     hl.exec_cmd("awww-daemon --format xrgb")    
+    -- hl.exec_cmd("hyprpaper")  -- hyprpaper只用于Debian等非Arch发行版
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")    
     hl.exec_cmd("sudo systemctl start mysqld")    
@@ -108,7 +109,7 @@ hl.bind("ALT + tab", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"), { release = true })
 hl.bind("SUPER + T", hl.dsp.exec_cmd(term))
 hl.bind("SUPER + E", hl.dsp.exec_cmd(files))
-hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("firefox-developer-edition"))
+hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("firefox"))
 hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("code"))
 
@@ -151,8 +152,6 @@ hl.bind("SUPER + W", hl.dsp.exec_cmd(scriptsDir .. "/WallpaperSelect.sh"))
 
 -- ── Waybar ──
 hl.bind("SUPER + B", hl.dsp.exec_cmd("killall -SIGUSR1 waybar"))
-hl.bind("SUPER + CTRL + B", hl.dsp.exec_cmd(scriptsDir .. "/WaybarStyles.sh"))
-hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd(scriptsDir .. "/WaybarLayout.sh"))
 
 -- ── 鼠标绑定 ──
 hl.bind("SHIFT + mouse:272", hl.dsp.window.drag(), { mouse = true })
@@ -282,6 +281,6 @@ hl.window_rule({ name = "kitty-run-style", match = { class = "^(kitty-run)$" }, 
 
 --  ── Scrolling布局窗口规则 ──
 hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.5 })
-hl.window_rule({ name = "browser_width", match = { class = "^(firefox-developer-edition)$" }, scrolling_width = 0.7 })
+hl.window_rule({ name = "browser_width", match = { class = "^(firefox)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "code_width", match = { class = "^(code)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "office_width", match = { class = "^(ONLYOFFICE)$" }, scrolling_width = 0.7 })

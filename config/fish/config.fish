@@ -1422,6 +1422,7 @@ if status is-interactive
     alias yyy='yay'
     alias sduo='sudo'
     alias dmesg='sudo dmesg'
+    alias apt='sudo apt'
 
     
     # ==========================================

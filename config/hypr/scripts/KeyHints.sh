@@ -91,7 +91,7 @@ GDK_BACKEND=$BACKEND yad --width=$dynamic_width --height=$dynamic_height \
 " S" "网络搜索" "(RofiSearch.sh)" \
 " W" "选择壁纸" "(WallpaperSelect.sh)" \
 " SHIFT C" "屏幕取色器" "(hyprpicker)" \
-" SHIFT B" "Firefox 浏览器" "(firefox-developer-edition)" \
+" SHIFT B" "Firefox 浏览器" "(firefox)" \
 " SHIFT V" "VSCode 编辑器" "(code)" \
 \
 "═══════════ 📸 截图功能 ═══════════" "" "" \

@@ -41,7 +41,7 @@
   "Lingma.DisplayLanguage": "简体中文",
   "Lingma.PreferredLanguage for AI Chat": "简体中文",
   "Lingma.PreferredLanguage forCommitMessage": "简体中文",
-  "Lingma.aI Chat.commandAllowlistInAgentMode": "mkdir,cd,./test-cli-server.sh,./nw,ps,grep,head,echo,ss,bash",
+  "Lingma.aI Chat.commandAllowlistInAgentMode": "mkdir,cd,./test-cli-server.sh,./nw,ps,grep,head,echo,ss,bash,tail,ldd",
   "explorer.confirmPasteNative": false,
   "terminal.integrated.cursorBlinking": true,
   "terminal.integrated.allowInUntrustedWorkspace": true,
@@ -67,4 +67,8 @@
   "chat.editing.confirmEditRequestRetry": false,
   "Lua.codeLens.enable": true,
   "Lua.completion.callSnippet": "Both",
+  "QoderCN.HttpProxyConfigurationURL": "socks5://127.0.0.1:1080",
+  "QoderCN.aI Chat.commandAllowlistInAgentMode": "mkdir,cd,./test-cli-server.sh,./nw,ps,grep,head,echo,ss,bash,tail,ldd",
+  "QoderCN.aI Chat.mcpToolsInAgentMode": true,
+  "QoderCN.aI Chat.webToolsInAsk/AgentMode": "Ask every time",
 }

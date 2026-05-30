@@ -176,7 +176,7 @@ install_core_deps() {
         'fastfetch'            
         'pyprland'             
         'wlogout'               
-        'firefox-developer-edition'
+        'firefox'
         'fzf'
         'swappy'
         'grim'
@@ -521,18 +521,20 @@ deploy_fish() {
         create_symlink "$SCRIPT_DIR/config/fish/fish_plugins" "$CURRENT_USER_HOME/.config/fish/fish_plugins"
         
         log "安装 Fish 插件..."
-        if command -v fish &>/dev/null; then
-            log "检查并安装 fisher..."
-            if ! fish -c "type fisher" &>/dev/null; then
-                log "安装 fisher 包管理器..."
-                if fish -c "sudo pacman -S fisher  && fisher install jorgebucaran/fisher" 2>/dev/null; then
-                    success "fisher 安装成功"
-                else
-                    warning "fisher 安装失败，尝试从配置文件安装"
-                fi
+        
+        if ! fish -c "type fisher" &>/dev/null; then
+            log "安装 fisher 包管理器..."
+            
+            if sudo pacman -S --noconfirm --needed fisher 2>/dev/null; then
+                success "fisher 通过 pacman 安装成功"
+            elif fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher' 2>/dev/null; then
+                success "fisher 通过 curl 安装成功"
             else
-                success "fisher 已安装"
+                warning "fisher 安装失败，尝试从配置文件安装"
             fi
+        else
+            success "fisher 已安装"
+        fi
             
             local plugins=(
                 "jethrokuan/z"
@@ -1139,13 +1141,15 @@ main() {
     success "安装完成！建议重启系统以使所有更改生效"
     echo "=========================================="
     echo ""
-    warning "注意："
-    warning "1. VSCode 需要手动配置, GTK主题需在nwg-look进一步配置"
+    warning "1. VSCode、GTK/QT主题、Firefox、系统服务、开发环境 需要手动配置"
+    warning "2. 非Arch需手动去 https://font.subf.dev/en/download 下载字体,"
+    warning "   再解压到 ~/.local/share/fonts/MapleMono-NF-CN/，再 fc-cache -fv ~/.local/share/fonts"
+    warning "   在部分屏幕下，rofi字体可能过小，需要去 ~/.config/rofi/config.rasi 改字体大小"
     
     if command -v grub-mkconfig &> /dev/null && [ -d "/boot/grub" ]; then
-        log "2. GRUB 已检测到，配置已自动更新"
+        log "3. GRUB 已检测到，配置已自动更新"
     else
-        log "2. 未检测到 GRUB 环境（可能是 Docker/UEFI），如需配置引导请手动处理"
+        log "3. 未检测到 GRUB 环境（可能是 Docker/UEFI），如需配置引导请手动处理"
     fi
     echo ""
 }
