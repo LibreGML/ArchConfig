@@ -116,7 +116,7 @@ hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("code"))
 -- ── 系统控制 ──
 hl.bind("CTRL + ALT + Delete", hl.dsp.exit())
 hl.bind("SUPER + L", hl.dsp.exec_cmd("hyprlock -q"))
-hl.bind("SUPER + I", hl.dsp.exec_cmd(term .. " -e micro " .. home .. "/.config/hypr/hyprland.lua"))
+hl.bind("SUPER + I", hl.dsp.exec_cmd(term .. " -e fresh " .. home .. "/.config/hypr/hyprland.lua"))
 hl.bind("CTRL + SUPER + O", hl.dsp.exec_cmd(scriptsDir .. "/Wlogout.sh"))
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("systemctl reboot"))
 hl.bind("CTRL + SUPER + P", hl.dsp.exec_cmd("systemctl poweroff"))

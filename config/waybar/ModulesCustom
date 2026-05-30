@@ -31,7 +31,7 @@
   },
   "custom/settings": {
     "format": " ",
-    "on-click": "kitty -e micro $HOME/.config/hypr/hyprland.lua",
+    "on-click": "kitty -e fresh $HOME/.config/hypr/hyprland.lua",
     "tooltip": true,
     "tooltip-format": "Launch KooL Hyprland Settings Menu"
   },

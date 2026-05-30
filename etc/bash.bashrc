@@ -727,7 +727,6 @@ if command -v git &>/dev/null; then
     alias gdiffstaged='git diff --staged'
     
     alias greset='git reset --hard'
-    alias gundo='git reset --soft HEAD~1'
     alias grestore='git restore'
     alias grestorestaged='git restore --staged'
     alias gclean='git clean -fd'
@@ -1315,12 +1314,13 @@ alias sduo='sudo'
 
 export ED=vim
 
-if command -v micro &>/dev/null; then
-    ED=$(command -v micro)
-    alias e='micro'
-    alias vim='micro'
-    alias nvim='micro'
-    alias nano='micro'
+if command -v fresh &>/dev/null; then
+    ED=$(command -v fresh)
+    alias e='fresh'
+    alias vim='fresh'
+    alias nvim='fresh'
+    alias nano='fresh'
+    alias micro='fresh'
 elif command -v vim &>/dev/null; then
     ED=$(command -v vim)
     alias e='vim'
@@ -1330,6 +1330,9 @@ elif command -v vi &>/dev/null; then
 elif command -v nano &>/dev/null; then
     ED=$(command -v nano)
     alias e='nano'
+elif command -v micro &>/dev/null; then
+    ED=$(command -v micro)
+    alias e='micro'
 fi
 
 _edsys() {
@@ -1410,6 +1413,7 @@ alias dmesg='sudo dmesg'
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
+alias apt='sudo apt'
 
 
 # =============================================================================

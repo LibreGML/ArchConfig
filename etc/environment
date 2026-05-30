@@ -1,4 +1,4 @@
-EDITOR="/usr/bin/micro"
+EDITOR="/usr/bin/fresh"
 
 QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx

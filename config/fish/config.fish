@@ -75,12 +75,13 @@ if status is-interactive
         
     set -x ED vim
 
-    if command -q micro
-        set -x ED micro
-        alias e='micro'
-        alias vim='micro'
-        alias nvim='micro'
-        alias nano='micro'
+    if command -q fresh
+        set -x ED fresh
+        alias e='fresh'
+        alias vim='fresh'
+        alias nvim='fresh'
+        alias nano='fresh'
+        alias micro='fresh'
     else if command -q vim
         alias e='vim'
     else if command -q vi
@@ -89,13 +90,15 @@ if status is-interactive
     else if command -q nano
         set -x ED nano
         alias e='nano'
+    else if command -q micro
+        set -x ED micro
+        alias e='micro'
     end
 
     alias zshrc="$ED $HOME/.zshrc"
     alias fishrc="$ED $HOME/.config/fish/config.fish"
     alias kittyconf="$ED $HOME/.config/kitty/kitty.conf"
     alias hyprconf="$ED $HOME/.config/hypr/hyprland.lua"
-    alias microconf="$ED $HOME/.config/micro/settings.json"
 
     alias bashrc="sudo $ED /etc/bash.bashrc"
     alias pacmanconf="sudo $ED /etc/pacman.conf"

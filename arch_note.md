@@ -813,7 +813,7 @@ cd ~/.local/share
 rm -rf nvim           # 清除旧配置
 cd ~
 cd .config
-git clone <别人的配置仓库>    # 克隆 Neovim 配置,我换成micro了 ， 所以没有了
+git clone <别人的配置仓库>    # 克隆 Neovim 配置,我换成fresh了 ， 所以没有了
 nvim                  # 启动 Neovim，自动安装插件
 ```
 
@@ -1414,7 +1414,7 @@ ssh -vvv -D 1080 -C -N  root@192.168.10.64
 ```bash
 sudo pacman -S mihomo
 sudo mkdir -p /var/lib/mihomo
-sudo micro /var/lib/mihomo/config.yaml
+sudo vim /var/lib/mihomo/config.yaml
 ```
 
 写入如下内容：

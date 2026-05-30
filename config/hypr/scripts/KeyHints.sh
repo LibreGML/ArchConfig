@@ -78,7 +78,7 @@ GDK_BACKEND=$BACKEND yad --width=$dynamic_width --height=$dynamic_height \
 "CTRL  O" "电源管理菜单" "(wlogout)" \
 "CTRL  R" "重启系统" "(systemctl reboot)" \
 "CTRL  P" "关机" "(systemctl poweroff)" \
-" I" "编辑配置文件" "(micro hyprland.lua)" \
+" I" "编辑配置文件" "(fresh hyprland.lua)" \
 " B" "切换状态栏显示" "(waybar toggle)" \
 " CTRL B" "切换状态栏样式" "(WaybarStyles.sh)" \
 " ALT B" "切换状态栏布局" "(WaybarLayout.sh)" \

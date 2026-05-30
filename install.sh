@@ -164,7 +164,6 @@ install_core_deps() {
         'thunar'                 
         'thunar-archive-plugin'
         'thunar-volman'
-        'micro'                 
         'fcitx5'               
         'fcitx5-chinese-addons'  
         'fcitx5-configtool'
@@ -284,6 +283,7 @@ install_core_deps() {
         'unzip'
         'git-lfs'
         'gnome-keyring'
+        'fresh-editor-bin'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
@@ -509,9 +509,12 @@ install_optional_deps() {
 # 部署配置文件
 # =============================================================================
 
+
+
 # =============================================================================
 # 部署 Fish 配置
 # =============================================================================
+
 deploy_fish() {
     log "部署 Fish shell 配置..."
     
@@ -521,20 +524,20 @@ deploy_fish() {
         create_symlink "$SCRIPT_DIR/config/fish/fish_plugins" "$CURRENT_USER_HOME/.config/fish/fish_plugins"
         
         log "安装 Fish 插件..."
-        
-        if ! fish -c "type fisher" &>/dev/null; then
-            log "安装 fisher 包管理器..."
-            
-            if sudo pacman -S --noconfirm --needed fisher 2>/dev/null; then
-                success "fisher 通过 pacman 安装成功"
-            elif fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher' 2>/dev/null; then
-                success "fisher 通过 curl 安装成功"
+        if command -v fish &>/dev/null; then
+            log "检查并安装 fisher..."
+            if ! fish -c "type fisher" &>/dev/null; then
+                log "安装 fisher 包管理器..."
+                if fish -c "sudo pacman -S fisher  && fisher install jorgebucaran/fisher" 2>/dev/null; then
+                    success "fisher 安装成功"
+                elif fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher' 2>/dev/null; then
+                    success "fisher 通过 curl 安装成功"
+                else
+                    warning "fisher 安装失败，尝试从配置文件安装"
+                fi
             else
-                warning "fisher 安装失败，尝试从配置文件安装"
+                success "fisher 已安装"
             fi
-        else
-            success "fisher 已安装"
-        fi
             
             local plugins=(
                 "jethrokuan/z"
@@ -574,6 +577,8 @@ deploy_fish() {
     fi
 }
 
+
+
 # =============================================================================
 # 切换用户默认 shell 为 Fish
 # =============================================================================
@@ -611,33 +616,7 @@ change_user_shell_to_fish() {
     fi
 }
 
-# =============================================================================
-# 部署 Micro 配置
-# =============================================================================
-deploy_micro() {
-    log "部署 Micro 编辑器配置..."
-    
-    if [ -d "$SCRIPT_DIR/config/micro" ]; then
-        mkdir -p "$CURRENT_USER_HOME/.config/micro"
-        
-        if [ -f "$SCRIPT_DIR/config/micro/bindings.json" ]; then
-            create_symlink "$SCRIPT_DIR/config/micro/bindings.json" "$CURRENT_USER_HOME/.config/micro/bindings.json"
-        fi
-        
-        if [ -f "$SCRIPT_DIR/config/micro/settings.json" ]; then
-            create_symlink "$SCRIPT_DIR/config/micro/settings.json" "$CURRENT_USER_HOME/.config/micro/settings.json"
-        fi
-        
-        if [ -d "$SCRIPT_DIR/config/micro/colorschemes" ]; then
-            create_symlink "$SCRIPT_DIR/config/micro/colorschemes" "$CURRENT_USER_HOME/.config/micro/colorschemes"
-        fi
-        
-        if [ -d "$SCRIPT_DIR/config/micro/plug" ]; then
-            create_symlink "$SCRIPT_DIR/config/micro/plug" "$CURRENT_USER_HOME/.config/micro/plug"
-        fi
-        
-    fi
-}
+
 
 # =============================================================================
 # 部署系统配置文件（/etc 目录）
@@ -780,7 +759,6 @@ deploy_configs() {
     done
     
     deploy_fish    
-    deploy_micro
     
     log "设置 HyprLand 脚本执行权限..."
     if [ -d "$CURRENT_USER_HOME/.config/hypr/scripts" ]; then

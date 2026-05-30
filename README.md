@@ -107,15 +107,6 @@ ArchConfig/
 │   │       ├── pinyin.conf          # 拼音输入
 │   │       ├── punctuation.conf     # 标点符号
 │   │       └── quickphrase.conf     # 快速短语
-│   ├── micro/                       # Micro 编辑器配置
-│   │   ├── bindings.json            # 键位绑定
-│   │   └── plug/                    # 插件目录（6 个插件）
-│   │       ├── autofmt/             # 代码格式化
-│   │       ├── jump/                # 跳转导航
-│   │       ├── lsp/                 # 语言服务器协议
-│   │       ├── quickfix/            # 快速修复
-│   │       ├── runit/               # 运行工具
-│   │       └── snippets/            # 代码片段
 │   ├── pypr/                        # Pyprland 增强工具配置
 │   │   └── config.toml              # 配置文件
 │   ├── qt5ct/                       # Qt5 外观配置
@@ -177,7 +168,6 @@ ArchConfig/
 | **Pyprland**   | 增强工具（下拉终端等）                 | [`config/pypr/config.toml`](./config/pypr/config.toml)     |
 | **Cliphist**   | 剪贴板管理器                           | -                                                          |
 | **Wlogout**    | 注销/关机菜单                          | [`config/wlogout/style.css`](./config/wlogout/style.css)   |
-| **Micro**      | 现代化文本编辑器                       | [`config/micro/`](./config/micro/)                         |
 
 ---
 
@@ -214,7 +204,7 @@ chmod +x install.sh
 
 ```bash
 # 基础系统工具
-sudo pacman -S hyprland kitty bash waybar swaync rofi thunar micro fcitx5 fcitx5-chinese-addons cliphist wl-clip-persist fastfetch pyprland wlogout firefox fzf swappy grim slurp hyprpicker eza ripgrep ttf-fira-code ttf-jetbrains-mono ttf-victor-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji hyprshot jq curl perl openssl tmux
+sudo pacman -S hyprland kitty bash waybar swaync rofi thunar fcitx5 fcitx5-chinese-addons cliphist wl-clip-persist fastfetch pyprland wlogout firefox fzf swappy grim slurp hyprpicker eza ripgrep ttf-fira-code ttf-jetbrains-mono ttf-victor-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji hyprshot jq curl perl openssl tmux
 
 # 音频支持
 sudo pacman -S pipewire pipewire-alsa wireplumber alsa-firmware alsa-ucm-conf sof-firmware
@@ -243,7 +233,6 @@ ln -s $(pwd)/config/swaync ~/.config/swaync
 ln -s $(pwd)/config/wlogout ~/.config/wlogout
 ln -s $(pwd)/config/Thunar ~/.config/Thunar
 ln -s $(pwd)/config/fcitx5 ~/.config/fcitx5
-ln -s $(pwd)/config/micro ~/.config/micro
 ln -s $(pwd)/config/pypr ~/.config/pypr
 ln -s $(pwd)/config/qt5ct ~/.config/qt5ct
 ln -s $(pwd)/config/qt6ct ~/.config/qt6ct
@@ -395,7 +384,7 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 | `CTRL  O`  | 电源管理菜单   | 打开 Wlogout 注销/关机菜单   |
 | `CTRL  R`  | 重启系统       | 重启计算机                   |
 | `CTRL  P`  | 关机           | 关闭计算机                   |
-| ` I`       | 编辑配置文件   | 使用 Micro 编辑 hyprland.lua |
+| ` I`       | 编辑配置文件   | 编辑 hyprland.lua |
 | ` B`       | 切换状态栏显示 | 显示/隐藏 Waybar 状态栏      |
 | ` CTRL B`  | 切换状态栏样式 | 切换 Waybar 预设样式         |
 | ` ALT B`   | 切换状态栏布局 | 切换 Waybar 布局             |
@@ -704,7 +693,7 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 | `_`             | sudo 缩写                              |
 | `sus`           | sudo -s                                |
 | `uncd`          | cd -（返回上次目录）                   |
-| `e`             | 编辑器（优先 Micro，备选 Vim/Vi/Nano） |
+| `e`             | 编辑器（优先 fresh，备选 Vim/Vi/Nano/micro） |
 | `vim/nvim/nano` | 统一指向首选编辑器                     |
 | `python/py`     | Python3                                |
 | `h`             | history                                |
