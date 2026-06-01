@@ -680,67 +680,42 @@ __smart_pwd() {
 # =============================================================================
 
 if command -v git &>/dev/null; then
+
     alias g='git'
     alias ginit='git init'
-    alias gclone='git clone --recursive --depth=1'
-    
+    alias gclone='git clone'
     alias gadd='git add'
     alias gcommit='git commit'
-    alias gupdate='git add . && git commit -m "fix bugs and add new features"'
-    
+    alias gamend='git commit --amend -m'
     alias gpush='git push'
     alias gpull='git pull'
     alias gfetch='git fetch'
-
-    gsync() {
-        local branch
-        branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="HEAD"
-        git pull origin "$branch"
-    }
-    
-    gsyncrebase() {
-        local branch
-        branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="HEAD"
-        git pull --rebase origin "$branch"
-    }
-    
-    pushremote() {
-        local branch
-        branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="master"
-        git add . && git commit -m "fix bugs and add new features" && git pull origin "$branch" && git push origin "$branch"
-    }
-
-
+    alias gmerge='git merge'
+    alias grebase='git rebase'   
+    alias gstatus='git status'
     alias gbranch='git branch'
     alias gcheckout='git checkout'
-    alias gnewbranch='git checkout -b'
     alias gswitch='git switch'
-    
-    alias gmerge='git merge'
-    alias grebase='git rebase'
-    
-    alias gstatus='git status'
     alias glog='git log'
     alias gloggraph='git log --graph --oneline --all'
-    
     alias gdiff='git diff'
     alias gdiffstaged='git diff --staged'
-    
-    alias greset='git reset --hard'
+    alias gupdate='git add . && git commit -m "fix bugs and add new features"'
+    alias gc1='git clone --recursive --depth=1'
+    alias greset='git reset'
+    alias gresethard='git reset --hard HEAD~1'
+    alias gresetsoft='git reset --soft HEAD~1' 
     alias grestore='git restore'
     alias grestorestaged='git restore --staged'
     alias gclean='git clean -fd'
-    
     alias gtag='git tag'
-    
     alias gstash='git stash'
     alias gstashpop='git stash pop'
-    alias gstashlist='git stash list'
-    
+    alias gstashlist='git stash list'  
     alias gremote='git remote'
     alias gremoteadd='git remote add'
-    alias gremoteurl='git remote set-url'
-    alias gprune='git remote prune origin'
+    alias gremoteseturl='git remote set-url'
+
     
     gwhatchange() {
         echo "📋 最近 20 条提交记录:"
@@ -753,6 +728,13 @@ if command -v git &>/dev/null; then
             echo "⚠️ 未输入哈希值～"
         fi
     }
+    
+    pushremote() {
+        local branch
+        branch=$(git symbolic-ref --short HEAD 2>/dev/null) || branch="master"
+        git add . && git commit -m "fix bugs and add new features" && git pull origin "$branch" && git push origin "$branch"
+    }
+    
 fi
 
 # =============================================================================

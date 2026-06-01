@@ -1293,6 +1293,7 @@ if status is-interactive
         alias gclone='git clone'
         alias gadd='git add'
         alias gcommit='git commit'
+        alias gamend='git commit --amend -m'
         alias gpush='git push'
         alias gpull='git pull'
         alias gfetch='git fetch'
@@ -1301,11 +1302,35 @@ if status is-interactive
         alias gstatus='git status'
         alias gbranch='git branch'
         alias gcheckout='git checkout'
+        alias gswitch='git switch'
         alias glog='git log'
         alias gloggraph='git log --graph --oneline --all'
         alias gdiff='git diff'
         alias gdiffstaged='git diff --staged'
         alias gupdate='git add . && git commit -m "fix bugs and add new features"'
+        alias gc1='git clone --recursive --depth=1'
+        alias greset='git reset'
+        alias gresethard='git reset --hard HEAD~1'
+        alias gresetsoft='git reset --soft HEAD~1' 
+        alias grestore='git restore'
+        alias grestorestaged='git restore --staged'
+        alias gclean='git clean -fd'
+        alias gtag='git tag'
+        alias gstash='git stash'
+        alias gstashpop='git stash pop'
+        alias gstashlist='git stash list'  
+        alias gremote='git remote'
+        alias gremoteadd='git remote add'
+        alias gremoteseturl='git remote set-url'
+
+        function gwhatchange
+            git log --oneline | head -20
+            echo -n "📝 输入哈希值查看文件: "
+            read -l hash
+            if test -n "$hash"
+                git show $hash
+            end
+        end
         
         function pushremote
             set -l current_branch (git branch --show-current)
@@ -1320,33 +1345,8 @@ if status is-interactive
             git push origin $current_branch
         end
         
-        alias gc1='git clone --recursive --depth=1'
-        alias gnewbranch='git checkout -b'
-        alias gswitch='git switch'
-        alias gsync='git pull origin'
-        alias gsyncrebase='git pull --rebase origin'
-        alias greset='git reset --hard'
-        alias gundo='git reset --soft HEAD~1' 
-        alias grestore='git restore'
-        alias grestorestaged='git restore --staged'
-        alias gclean='git clean -fd'
-        alias gtag='git tag'
-        alias gstash='git stash'
-        alias gstashpop='git stash pop'
-        alias gstashlist='git stash list'  
-        alias gremote='git remote'
-        alias gremoteadd='git remote add'
-        alias gremoteurl='git remote set-url'
-        alias gprune='git remote prune origin'
-
-        function gwhatchange
-            git log --oneline | head -20
-            echo -n "📝 输入哈希值查看文件: "
-            read -l hash
-            if test -n "$hash"
-                git show $hash
-            end
-        end
+        
+        
     end
     
     # ==========================================
