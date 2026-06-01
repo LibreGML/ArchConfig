@@ -1,19 +1,6 @@
 # ArchConfig
 
-> 🚀 TZGML Arch Linux Hyprland Dotfiles - 现代化、高效的 Wayland 桌面环境配置
-
----
-
-## 📖 目录
-
-- [项目结构](#-项目结构)
-- [快速安装](#-快速安装)
-- [核心配置说明](#-核心配置说明)
-- [快捷键大全](#-快捷键大全)
-- [触摸板手势](#-触摸板手势)
-- [强大的 Bashrc 函数库](#-强大的-bashrc-函数库)
-- [自定义指南](#-自定义指南)
-- [屏幕截图](#-屏幕截图)
+> 🚀 TZGML Arch Linux Hyprland Dotfiles - 现代化 Hyprland 桌面环境配置
 
 ---
 
@@ -74,8 +61,6 @@ ArchConfig/
 │   │   │   ├── Volume.sh            # 音量控制
 │   │   │   ├── WallpaperSelect.sh   # 壁纸选择器
 │   │   │   ├── WaybarCava.sh        # Waybar CAVA 可视化
-│   │   │   ├── WaybarLayout.sh      # 状态栏布局切换
-│   │   │   ├── WaybarStyles.sh      # 状态栏样式切换
 │   │   │   └── Wlogout.sh           # 注销/关机菜单
 │   │   └── wallust/                 # Wallust 动态主题生成
 │   │       ├── wallust-hyprland.conf
@@ -173,8 +158,6 @@ ArchConfig/
 
 ## 🚀 快速安装
 
-### 方式一：自动化安装（推荐）
-
 ```bash
 # 1. 克隆仓库
 git clone https://github.com/tzgml/ArchConfig.git
@@ -184,153 +167,6 @@ cd ArchConfig
 chmod +x install.sh
 ./install.sh
 ```
-
-**安装脚本自动完成：**
-
-- ✅ 检测并安装 yay（AUR 助手）
-- ✅ 安装所有核心依赖包（含重试机制）
-- ✅ 安装可选 AUR 软件包
-- ✅ 复制配置文件到对应目录（使用符号链接）
-- ✅ 设置脚本执行权限
-- ✅ 部署系统级配置文件（Pacman、Systemd、TLP 等）
-- ✅ 部署用户家目录配置（GTK 主题等）
-- ✅ 配置 MySQL 数据库服务
-- ✅ 创建必要目录
-- ✅ 禁用休眠和睡眠目标
-
-### 方式二：手动安装
-
-#### 1. 安装核心依赖
-
-```bash
-# 基础系统工具
-sudo pacman -S hyprland kitty bash waybar swaync rofi thunar fcitx5 fcitx5-chinese-addons cliphist wl-clip-persist fastfetch pyprland wlogout firefox fzf swappy grim slurp hyprpicker eza ripgrep ttf-fira-code ttf-jetbrains-mono ttf-victor-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji hyprshot jq curl perl openssl tmux
-
-# 音频支持
-sudo pacman -S pipewire pipewire-alsa wireplumber alsa-firmware alsa-ucm-conf sof-firmware
-
-# 图形驱动（AMD）
-sudo pacman -S mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon amd-ucode
-
-# 网络与蓝牙
-sudo pacman -S network-manager-applet bluez bluez-utils blueman pkgfile
-
-# 开发工具
-sudo pacman -S nodejs npm jdk21-openjdk android-tools docker docker-compose lazydocker mysql
-
-# 其他实用工具
-sudo pacman -S btop clash-verge-rev mihomo localsend nginx syncthing tlp powertop cups cups-filters ghostscript imagemagick mpv loupe obs-studio
-```
-
-#### 2. 复制配置文件
-
-```bash
-# 复制用户配置（使用符号链接）
-ln -s $(pwd)/config/hypr ~/.config/hypr
-ln -s $(pwd)/config/kitty ~/.config/kitty
-ln -s $(pwd)/config/waybar ~/.config/waybar
-ln -s $(pwd)/config/swaync ~/.config/swaync
-ln -s $(pwd)/config/wlogout ~/.config/wlogout
-ln -s $(pwd)/config/Thunar ~/.config/Thunar
-ln -s $(pwd)/config/fcitx5 ~/.config/fcitx5
-ln -s $(pwd)/config/pypr ~/.config/pypr
-ln -s $(pwd)/config/qt5ct ~/.config/qt5ct
-ln -s $(pwd)/config/qt6ct ~/.config/qt6ct
-ln -s $(pwd)/config/xsettingsd ~/.config/xsettingsd
-
-# 复制系统级配置
-sudo cp etc/pacman.conf /etc/pacman.conf
-sudo cp etc/makepkg.conf /etc/makepkg.conf
-sudo cp etc/environment /etc/environment
-sudo cp etc/systemd/journald.conf /etc/systemd/journald.conf
-sudo cp etc/systemd/system.conf /etc/systemd/system.conf
-sudo cp etc/tlp.conf /etc/tlp.conf
-sudo cp etc/zram-generator.conf /etc/systemd/zram-generator.conf
-sudo cp etc/safe-rm.conf /etc/safe-rm.conf
-
-# 部署 Bash 配置
-sudo cp etc/bash.bashrc /etc/bash.bashrc
-
-# 部署 Fcitx5 主题
-cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
-```
-
-#### 3. 重启 Hyprland
-
-重新登录或重启系统使配置生效。
-
----
-
-## 📝 核心配置说明
-
-### 主要配置文件详解
-
-#### `config/hypr/hyprland.lua` - 主配置文件（Lua）
-
-**包含内容：**
-
-- **变量定义**：路径、修饰键、默认应用
-- **显示器设置**：分辨率、缩放、镜像
-- **自启动应用**：输入法、壁纸、状态栏、通知中心等
-- **快捷键绑定**：所有键盘快捷键定义
-- **窗口规则**：应用自动分配到工作区
-- **环境变量**：Wayland 环境变量配置
-- **鼠标绑定**：鼠标操作配置
-- **触摸板手势**：多指手势配置
-- **动画曲线**：窗口动画效果
-- **装饰配置**：圆角、模糊、透明度等
-
-### 自启动应用清单
-
-| 应用                | 说明                                   |
-| ------------------- | -------------------------------------- |
-| **Fcitx5**          | 中文输入法                             |
-| **Waybar**          | 状态栏                                 |
-| **SwayNC**          | 通知中心                               |
-| **AGS**             | Aylur's GTK Shell（状态栏/小部件框架） |
-| **Cliphist**        | 剪贴板管理（文本 + 图像）              |
-| **wl-clip-persist** | 剪贴板持久化                           |
-| **Hypridle**        | 电源管理/锁屏                          |
-| **Pyprland**        | 下拉终端/窗口缩放                      |
-| **Kitty**           | 终端模拟器                             |
-| **Nm-applet**       | 网络管理器                             |
-| **Blueman-applet**  | 蓝牙管理器                             |
-| **Hyprpolkitagent** | 权限认证代理                           |
-
-### 窗口规则 - 工作区自动分配
-
-| 应用类型     | 工作区 | 匹配的应用                                            |
-| ------------ | ------ | ----------------------------------------------------- |
-| **浏览器**   | 5      | Firefox, Chrome, Chromium, Edge, Brave, Zen, Thorium  |
-| **开发工具** | 4      | VSCode, Android Studio, IntelliJ IDEA, 微信开发者工具 |
-
-### 窗口动画配置
-
-**动画曲线：**
-
-- `wind` - 窗口打开动画
-- `winIn` - 窗口进入动画
-- `winOut` - 窗口退出动画
-- `smoothOut` - 平滑退出
-- `smoothIn` - 平滑进入
-- `overshot` - 工作区切换动画
-
-**动画效果：**
-
-- 窗口动画：滑动效果，速度 6
-- 边框动画：循环渐变，速度 100
-- 淡入淡出：速度 3
-- 工作区切换：滑动效果，速度 5
-
-### 装饰配置
-
-- **圆角半径**：20px
-- **活动窗口不透明度**：0.87
-- **非活动窗口不透明度**：0.7
-- **全屏窗口不透明度**：0.95
-- **模糊效果**：启用，大小 7px，2 次传递
-- **边框大小**：2px
-- **内外边距**：gaps_in 6px, gaps_out 8px
 
 ---
 
@@ -379,16 +215,16 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 
 ### 💻 系统控制
 
-| 快捷键      | 功能           | 详细说明                     |
-| ----------- | -------------- | ---------------------------- |
-| `CTRL  O`  | 电源管理菜单   | 打开 Wlogout 注销/关机菜单   |
-| `CTRL  R`  | 重启系统       | 重启计算机                   |
-| `CTRL  P`  | 关机           | 关闭计算机                   |
-| ` I`       | 编辑配置文件   | 编辑 hyprland.lua |
-| ` B`       | 切换状态栏显示 | 显示/隐藏 Waybar 状态栏      |
-| ` CTRL B`  | 切换状态栏样式 | 切换 Waybar 预设样式         |
-| ` ALT B`   | 切换状态栏布局 | 切换 Waybar 布局             |
-| ` SHIFT N` | 通知中心       | 切换 SwayNC 通知中心面板     |
+| 快捷键      | 功能           | 详细说明                   |
+| ----------- | -------------- | -------------------------- |
+| `CTRL  O`  | 电源管理菜单   | 打开 Wlogout 注销/关机菜单 |
+| `CTRL  R`  | 重启系统       | 重启计算机                 |
+| `CTRL  P`  | 关机           | 关闭计算机                 |
+| ` I`       | 编辑配置文件   | 编辑 hyprland.lua          |
+| ` B`       | 切换状态栏显示 | 显示/隐藏 Waybar 状态栏    |
+| ` CTRL B`  | 切换状态栏样式 | 切换 Waybar 预设样式       |
+| ` ALT B`   | 切换状态栏布局 | 切换 Waybar 布局           |
+| ` SHIFT N` | 通知中心       | 切换 SwayNC 通知中心面板   |
 
 ### 🛠️ 实用工具
 
@@ -400,7 +236,7 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 | ` S`       | 网络搜索       | 使用 Rofi 进行网络搜索            |
 | ` W`       | 选择壁纸       | 打开壁纸选择器                    |
 | ` SHIFT C` | 屏幕取色器     | 打开 Hyprpicker 屏幕取色器        |
-| ` SHIFT B` | Firefox 浏览器 | 启动 Firefox    |
+| ` SHIFT B` | Firefox 浏览器 | 启动 Firefox                      |
 | ` SHIFT V` | VSCode         | 启动 Visual Studio Code           |
 
 ### 📸 截图功能
@@ -688,23 +524,23 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 
 ### 🛠️ 常用工具别名
 
-| 别名            | 功能                                   |
-| --------------- | -------------------------------------- |
-| `_`             | sudo 缩写                              |
-| `sus`           | sudo -s                                |
-| `uncd`          | cd -（返回上次目录）                   |
+| 别名            | 功能                                         |
+| --------------- | -------------------------------------------- |
+| `_`             | sudo 缩写                                    |
+| `sus`           | sudo -s                                      |
+| `uncd`          | cd -（返回上次目录）                         |
 | `e`             | 编辑器（优先 fresh，备选 Vim/Vi/Nano/micro） |
-| `vim/nvim/nano` | 统一指向首选编辑器                     |
-| `python/py`     | Python3                                |
-| `h`             | history                                |
-| `grubmk`        | 更新 GRUB 配置                         |
-| `btrfszip`      | Btrfs 压缩优化                         |
-| `diskinfo`      | 磁盘信息汇总                           |
-| `ducks`         | 找出最大的文件/目录                    |
-| `dusort`        | 按大小排序目录                         |
-| `topcpu`        | CPU 占用前 10 进程                     |
-| `topmem`        | 内存占用前 10 进程                     |
-| `portproc`      | 查询端口占用进程                       |
+| `vim/nvim/nano` | 统一指向首选编辑器                           |
+| `python/py`     | Python3                                      |
+| `h`             | history                                      |
+| `grubmk`        | 更新 GRUB 配置                               |
+| `btrfszip`      | Btrfs 压缩优化                               |
+| `diskinfo`      | 磁盘信息汇总                                 |
+| `ducks`         | 找出最大的文件/目录                          |
+| `dusort`        | 按大小排序目录                               |
+| `topcpu`        | CPU 占用前 10 进程                           |
+| `topmem`        | 内存占用前 10 进程                           |
+| `portproc`      | 查询端口占用进程                             |
 
 ### 📝 系统配置文件快速编辑
 
@@ -722,80 +558,5 @@ cp -r local/share/fcitx5/themes ~/.local/share/fcitx5/
 - 自动检测编辑器可用性
 - 自动提权编辑只读文件
 - 统一的编辑体验
-
----
-
-## 🎨 自定义指南
-
-### 更换壁纸
-
-1. 将新壁纸放入 `~/Pictures/wallpapers/` 目录
-2. 使用 ` W` 选择壁纸
-3. 或使用脚本随机切换
-
-### 更换终端主题
-
-1. 从 [`config/kitty/kitty-themes/`](./config/kitty/kitty-themes/) 选择主题
-2. 编辑 [`config/kitty/kitty.conf`](./config/kitty/kitty.conf)
-3. 修改 `include` 指令指向新主题文件
-
-### 更改主题颜色
-
-主题颜色通过 Wallust 动态生成：
-
-1. 编辑 [`config/hypr/wallust/wallust.lua`](./config/hypr/wallust/wallust.lua)
-2. 运行 `~/.config/hypr/scripts/Refresh.sh` 刷新
-
-### 修改状态栏样式
-
-1. 运行 `~/.config/hypr/scripts/WaybarStyles.sh` 选择预设样式
-2. 或手动编辑 [`config/waybar/style.css`](./config/waybar/style.css)
-3. 运行 `~/.config/hypr/scripts/Refresh.sh` 刷新
-
-### 添加开机自启动
-
-编辑 [`config/hypr/hyprland.lua`](./config/hypr/hyprland.lua)，在 `hyprland.start` 钩子中添加：
-
-```lua
-hl.on("hyprland.start", function()
-    hl.exec_cmd("你的命令 &")
-end)
-```
-
-### 自定义快捷键
-
-编辑 [`config/hypr/hyprland.lua`](./config/hypr/hyprland.lua)，参考现有格式添加：
-
-```lua
--- 语法：hl.bind("修饰键 + 按键", hl.dsp.exec_cmd("命令"))
-hl.bind("SUPER + X", hl.dsp.exec_cmd("your_command"))
-```
-
-### 修改窗口规则
-
-编辑 [`config/hypr/hyprland.lua`](./config/hypr/hyprland.lua)，添加窗口规则：
-
-```lua
-hl.window_rule({
-    name = "rule-name",
-    match = { class = "^AppClass$" },
-    workspace = "3"
-})
-```
-
-### 自定义 Bash 函数
-
-编辑 [`etc/bash.bashrc`](./etc/bash.bashrc) 添加个性化函数：
-
-```bash
-# 添加别名
-alias ll='eza -la --icons'
-alias gs='git status'
-
-# 添加函数
-myfunc() {
-    echo "Hello World"
-}
-```
 
 ---
