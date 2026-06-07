@@ -6,7 +6,7 @@
     "tooltip-format": "Hyprpicker"
   },
   "custom/screenshot": {
-    "format": "📷",
+    "format": "◉",
     "on-click": "bash -c 'hyprshot -m output -z --clipboard-only && notify-send Waybar截图 截图已复制到剪贴板 || notify-send Waybar截图 截图失败' &",
     "tooltip": true,
     "tooltip-format": "屏幕截图 (选择区域)"

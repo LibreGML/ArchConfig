@@ -284,6 +284,9 @@ install_core_deps() {
         'git-lfs'
         'gnome-keyring'
         'fresh-editor-bin'
+        'python-pyclip'
+        'waydroid'
+        'dnsmasq'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
@@ -404,7 +407,6 @@ install_optional_deps() {
         'wechat-bin'
         'onlyoffice-bin'
         'mysql'
-        'sunshine'
         'wechat-devtools-git'
     )
     

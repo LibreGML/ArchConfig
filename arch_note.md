@@ -914,11 +914,8 @@ blacklist rtw88_8821ce
 blacklist rtw88_8821c
 blacklist rtw88_pci
 blacklist rtw88_core
-install rtw88_8821ce /bin/false
-install rtw88_8821c /bin/false
 ```
 
-将该文件添加到 `/etc/mkinitcpio.conf` 的 `FILES` 数组中。
 
 2. **安装新驱动**
 
@@ -926,19 +923,13 @@ install rtw88_8821c /bin/false
 yay -S rtl8821ce-dkms-git
 ```
 
-3. **卸载旧驱动模块**
-
-```bash
-sudo modprobe -r rtw88_8821ce rtw88_8821c rtw88_pci rtw88_core
-```
-
-4. **重建 initramfs**
+3. **重建 initramfs**
 
 ```bash
 sudo mkinitcpio -P
 ```
 
-5. **更新 GRUB 并重启**
+4. **更新 GRUB 并重启**
 
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -950,6 +941,8 @@ reboot
 ```bash
 lsmod | grep -i 8821
 ```
+
+> 注意, cachyOS等第三方内核由于安全策略，无法加载树外模块，只能用Linux主线内核。
 
 #### 方案二：排查驱动问题
 

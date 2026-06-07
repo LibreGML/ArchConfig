@@ -248,11 +248,6 @@ if status is-interactive
         alias startvnc='WLR_RDP_TX_CAPTURE_ALL_KEYS=1 wayvnc -v 0.0.0.0 5900'
     end
     
-    
-    if command -q tldr
-        alias man='tldr'
-    end
-    
     alias chmodx='sudo chmod +x'
     
     function mine

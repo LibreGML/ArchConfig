@@ -13,7 +13,7 @@
     },
     "format": "{icon} {windows}",
     "format-window-separator": " ",
-    "window-rewrite-default": " ",
+    "window-rewrite-default": "󰀻 ",
     "window-rewrite": {
       "title<.*amazon.*>": " ",
       "title<.*reddit.*>": " ",
@@ -123,7 +123,16 @@
       "class<org.kde.filelight>": " ",
       "class<com.alibabainc.dingtalk>": "󰈸 ",
       "class<Feishu>": " ",
-      "class<wemeetapp>": " "
+      "class<wemeetapp>": " ",
+      "class<Waydroid>": "󰀲 ",
+      "class<cinny|Cinny|im.cinny.Cinny>": "󰭹 ",
+      "class<Vncviewer|vncviewer>": "󰢹 ",
+      "class<org.gnome.Loupe|loupe>": "󰋩 ",
+      "class<net.kchmviewer.kchmviewer|kchmviewer>": "󰗚 ",
+      "class<org.gnome.SimpleScan|simple-scan>": "󰚫 ",
+      "class<cmake-gui>": "󰔬 ",
+      "class<qt6ct|qt5ct>": "󰇸 ",
+      "class<xarchiver|Xarchiver>": "󰗄 ",
     }
   }
 }
