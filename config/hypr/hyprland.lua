@@ -49,7 +49,6 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd("hyprpaper")  -- hyprpaper只用于Debian等非Arch发行版
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")    
-    hl.exec_cmd("sudo systemctl start mysqld")    
 end)
 
 

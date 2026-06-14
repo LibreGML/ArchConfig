@@ -189,6 +189,7 @@ install_core_deps() {
         'ripgrep'
         'nodejs'
         'npm'
+        'mariadb'
         'jdk21-openjdk'
         'maven'
         'uv'
@@ -219,7 +220,6 @@ install_core_deps() {
         'lib32-mesa'
         'lib32-vulkan-radeon'
         'xf86-video-amdgpu'
-        'gtk-engine-murrine'
         'qt5-quickcontrols2'
         'qt5ct'
         'qt6-wayland'
@@ -286,6 +286,7 @@ install_core_deps() {
         'fresh-editor-bin'
         'python-pyclip'
         'waydroid'
+        'waydroid-script-git'
         'dnsmasq'
     )
     
@@ -405,9 +406,6 @@ install_optional_deps() {
         'visual-studio-code-bin'
         'android-studio'
         'wechat-bin'
-        'onlyoffice-bin'
-        'mysql'
-        'wechat-devtools-git'
     )
     
     
@@ -884,85 +882,27 @@ check_systemd() {
 # =============================================================================
 # 配置系统服务
 # =============================================================================
+
 runService() {
     log "=========================================="
     log "配置系统服务..."
     log "=========================================="
     
-    if ! check_systemd; then
-        warning "=========================================="
-        warning "警告：systemd 未运行（PID 1）"
-        warning "=========================================="
-        warning "当前环境可能是在 chroot、容器或 Live 环境中"
-        warning "系统服务配置将在重启后生效"
-        warning ""
-        warning "重启后，以下服务将自动启用："
-        warning "  - NetworkManager"
-        warning "  - CUPS (打印服务)"
-        warning "  - TLP (电源管理)"
-        warning "  - Powertop"
-        warning ""
-        warning "如需立即配置，请在重启后的真实系统中运行此脚本"
-        warning "=========================================="
-        
-        log "配置服务开机自启（将在重启后生效）..."
-        
-        sudo systemctl enable NetworkManager 2>/dev/null || warning "NetworkManager 启用失败"
-        sudo systemctl disable systemd-networkd 2>/dev/null || true
-        sudo systemctl disable systemd-networkd-wait-online 2>/dev/null || true
-        
-        sudo systemctl enable cups 2>/dev/null || warning "CUPS 服务启用失败"
-        
-        sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true
-        sudo systemctl mask systemd-rfkill.service 2>/dev/null || true
-        sudo systemctl mask systemd-rfkill.socket 2>/dev/null || true
-        sudo systemctl enable tlp 2>/dev/null || warning "TLP 服务启用失败"
-        
-        if [ ! -f /etc/systemd/system/powertop.service ]; then
-            log "创建 Powertop 服务配置..."
-            sudo tee /etc/systemd/system/powertop.service > /dev/null << 'EOF'
-[Unit]
-Description=Powertop tunings
-After=multi-user.target
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/powertop --auto-tune
-
-[Install]
-WantedBy=multi-user.target
-EOF
-            sudo systemctl daemon-reload 2>/dev/null || true
-        fi
-        sudo systemctl enable powertop.service 2>/dev/null || warning "powertop 服务启用失败"
-        
-        sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true
-        
-        return 0
+    local systemd_running=false
+    if pidof systemd >/dev/null 2>&1 || [ -d /run/systemd/system ]; then
+        systemd_running=true
     fi
     
-    log "配置网络管理服务..."
-    sudo systemctl enable --now NetworkManager || warning "NetworkManager 启用失败"
-    sudo systemctl disable systemd-networkd || true
-    sudo systemctl disable systemd-networkd-wait-online || true
-    sudo systemctl disable NetworkManager-wait-online.service || true
-    sudo systemctl mask NetworkManager-wait-online.service || true
+    local has_networkmanager=false
+    local has_tlp=false
+    local has_powertop=false
     
-    log "配置 CUPS 打印服务..."
-    sudo systemctl enable --now cups || warning "CUPS 服务启用失败"
-    
-    log "配置电源管理服务..."
-    sudo systemctl disable --now power-profiles-daemon.service 2>/dev/null || true
-    sudo systemctl mask systemd-rfkill.service || true
-    sudo systemctl mask systemd-rfkill.socket || true
-    sudo systemctl stop systemd-rfkill.service 2>/dev/null || true
-    sudo systemctl stop systemd-rfkill.socket 2>/dev/null || true
-    sudo systemctl enable --now tlp || warning "TLP 服务启用失败"
-    
-    log "配置 Powertop 服务..."
+    command -v NetworkManager >/dev/null 2>&1 && has_networkmanager=true
+    command -v tlp >/dev/null 2>&1 && has_tlp=true
+    command -v powertop >/dev/null 2>&1 && has_powertop=true
     
     if [ ! -f /etc/systemd/system/powertop.service ]; then
+        log "创建 Powertop 服务配置..."
         sudo tee /etc/systemd/system/powertop.service > /dev/null << 'EOF'
 [Unit]
 Description=Powertop tunings
@@ -978,10 +918,84 @@ WantedBy=multi-user.target
 EOF
     fi
     
-    sudo systemctl daemon-reload || warning "systemctl daemon-reload 失败"
-    sudo systemctl enable --now powertop.service || warning "powertop 服务启用失败"
+    if ! $systemd_running; then
+        warning "=========================================="
+        warning "警告：systemd 未运行（PID 1）"
+        warning "=========================================="
+        warning "当前环境可能是在 chroot、容器或 Live 环境中"
+        warning "系统服务配置将在重启后生效"
+        warning ""
+        warning "重启后，以下服务将自动启用："
+        $has_networkmanager && warning "  - NetworkManager"
+        $has_tlp && warning "  - TLP (电源管理)"
+        $has_powertop && warning "  - Powertop"
+        warning ""
+        warning "如需立即配置，请在重启后的真实系统中运行此脚本"
+        warning "=========================================="
+        
+        log "配置服务开机自启（将在重启后生效）..."
+        
+        if $has_networkmanager; then
+            sudo systemctl enable NetworkManager 2>/dev/null || warning "NetworkManager 启用失败"
+        fi
+        sudo systemctl disable systemd-networkd 2>/dev/null || true
+        sudo systemctl disable systemd-networkd-wait-online 2>/dev/null || true
+        sudo systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
+        sudo systemctl mask NetworkManager-wait-online.service 2>/dev/null || true
+        
+        sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true
+        sudo systemctl mask systemd-rfkill.service 2>/dev/null || true
+        sudo systemctl mask systemd-rfkill.socket 2>/dev/null || true
+        
+        if $has_tlp; then
+            sudo systemctl enable tlp 2>/dev/null || warning "TLP 启用失败"
+        fi
+        
+        if [ -f /etc/systemd/system/powertop.service ]; then
+            sudo systemctl enable powertop.service 2>/dev/null || warning "powertop 启用失败"
+        fi
+        
+        sudo systemctl mask sleep.target 2>/dev/null || true
+        sudo systemctl mask suspend.target 2>/dev/null || true
+        sudo systemctl mask hibernate.target 2>/dev/null || true
+        sudo systemctl mask hybrid-sleep.target 2>/dev/null || true
+        
+        log "开启 zram（将在重启后生效）..."
+        sudo systemctl enable systemd-zram-setup@zram0.service 2>/dev/null || warning "zram 启用失败"
+        
+        success "系统服务配置完成（将在重启后生效）"
+        return 0
+    fi
     
-    if command -v powertop &>/dev/null; then
+    log "配置网络管理服务..."
+    if $has_networkmanager; then
+        sudo systemctl enable --now NetworkManager || warning "NetworkManager 启动失败"
+    fi
+    sudo systemctl disable systemd-networkd || true
+    sudo systemctl disable systemd-networkd-wait-online || true
+    sudo systemctl disable NetworkManager-wait-online.service || true
+    sudo systemctl mask NetworkManager-wait-online.service || true
+    
+    log "配置电源管理服务..."
+    sudo systemctl disable --now power-profiles-daemon.service 2>/dev/null || true
+    sudo systemctl mask systemd-rfkill.service || true
+    sudo systemctl mask systemd-rfkill.socket || true
+    sudo systemctl stop systemd-rfkill.service 2>/dev/null || true
+    sudo systemctl stop systemd-rfkill.socket 2>/dev/null || true
+    
+    if $has_tlp; then
+        sudo systemctl enable --now tlp || warning "TLP 启动失败"
+    else
+        warning "TLP 未安装，跳过"
+    fi
+    
+    log "配置 Powertop 服务..."
+    if [ -f /etc/systemd/system/powertop.service ]; then
+        sudo systemctl daemon-reload || warning "systemctl daemon-reload 失败"
+        sudo systemctl enable --now powertop.service || warning "powertop 启动失败"
+    fi
+    
+    if $has_powertop; then
         log "运行 Powertop 自动调优..."
         sudo powertop --auto-tune 2>&1 | grep -v "modprobe.*failed" | grep -v "Failed to mount debugfs" || true
     fi
@@ -992,9 +1006,18 @@ EOF
     sudo systemctl mask hibernate.target || true
     sudo systemctl mask hybrid-sleep.target || true
     
+    log "开启 zram..."
+    sudo systemctl enable --now systemd-zram-setup@zram0.service || warning "zram 启动失败"
+    
     success "系统服务配置完成"
 }
 
+
+
+
+# =============================================================================
+# 配置家目录
+# =============================================================================
 
 deployhome() {
     local home_source="$SCRIPT_DIR/home"

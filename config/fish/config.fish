@@ -132,7 +132,7 @@ if status is-interactive
         
         alias sshd='sudo systemctl start sshd'
         alias dockerd='sudo systemctl start docker'
-        alias mysqld='sudo systemctl start mysqld'
+        alias mysqld='sudo systemctl start mariadb'
         alias tomcatd='sudo systemctl start tomcat10'
      
         if test "$DISTRO_TYPE" = "arch"
@@ -1348,12 +1348,14 @@ if status is-interactive
     # 🗄️ MySQL 数据库管理 - 数据库连接和备份命令呀～
     # ==========================================
     
-    if command -q mysql
-        alias my='mysql --defaults-extra-file=$HOME/.my.cnf'
-        alias my-ls='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;"'
-        alias my-tables='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW TABLES;"'
-        alias my-conn='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW PROCESSLIST;"'
-        alias my-vars='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW VARIABLES LIKE '\''%max_connections%'\'';"'
+    
+    
+    if command -q mariadb
+        alias my='mariadb --defaults-extra-file=$HOME/.my.cnf'
+        alias my-ls='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;"'
+        alias my-tables='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW TABLES;"'
+        alias my-conn='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW PROCESSLIST;"'
+        alias my-vars='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW VARIABLES LIKE '\''%max_connections%'\'';"'
     
         function my-backup
             set -l db $argv[1]
@@ -1363,14 +1365,14 @@ if status is-interactive
             end
             set -l date (date +%F_%H%M%S)
             set -l out (string join "" $db "_" $date ".sql.gz")
-            mysqldump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --quick --lock-tables=false $db | gzip > $out
+            mariadb-dump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --quick --lock-tables=false $db | gzip > $out
             echo $out
         end
     
         function my-backup-all
             set -l date (date +%F_%H%M%S)
             set -l out (string join "" "all_databases_" $date ".sql.gz")
-            mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;" -N -B | grep -v -E '^(information_schema|performance_schema|mysql|sys)$' | xargs mysqldump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --databases | gzip > $out
+            mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;" -N -B | grep -v -E '^(information_schema|performance_schema|mysql|sys|mariadb)$' | xargs mariadb-dump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --databases | gzip > $out
             echo $out
         end
     
@@ -1387,12 +1389,13 @@ if status is-interactive
                 return 1
             end
             if string match -q "*.gz" $file
-                gunzip < $file | mysql --defaults-extra-file=$HOME/.my.cnf $db
+                gunzip < $file | mariadb --defaults-extra-file=$HOME/.my.cnf $db
             else
-                mysql --defaults-extra-file=$HOME/.my.cnf $db < $file
+                mariadb --defaults-extra-file=$HOME/.my.cnf $db < $file
             end
         end
     end
+    
     
     # ==========================================
     # 📁 文件列表显示 - eza 增强的 ls 命令哦～

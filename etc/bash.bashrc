@@ -972,7 +972,7 @@ if command -v systemctl &>/dev/null; then
     
     alias sshd='sudo systemctl start sshd'
     alias dockerd='sudo systemctl start docker'
-    alias mysqld='sudo systemctl start mysqld'
+    alias mysqld='sudo systemctl start mariadb'
     alias tomcatd='sudo systemctl start tomcat10'
 fi
 
@@ -980,51 +980,51 @@ fi
 # 🗄️ MySQL 数据库管理 - 数据库连接和备份命令呀～
 # ==========================================
 
-if command -v mysql >/dev/null 2>&1; then
-    alias my='mysql --defaults-extra-file=$HOME/.my.cnf'
-    alias my-ls='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;"'
-    alias my-tables='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW TABLES;"'
-    alias my-conn='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW PROCESSLIST;"'
-    alias my-vars='mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW VARIABLES LIKE \"%max_connections%\";"'
+if command -v mariadb >/dev/null 2>&1; then
+   alias my='mariadb --defaults-extra-file=$HOME/.my.cnf'
+   alias my-ls='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;"'
+   alias my-tables='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW TABLES;"'
+   alias my-conn='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW PROCESSLIST;"'
+   alias my-vars='mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW VARIABLES LIKE \"%max_connections%\";"'
 
-    my-backup() {
-        local db="$1"
-        if [ -z "$db" ]; then
-            echo "USAGE: my-backup <database_name>" >&2
-            return 1
-        fi
-        local date=$(date +%F_%H%M%S)
-        local out="${db}_${date}.sql.gz"
-        mysqldump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --quick --lock-tables=false "$db" | gzip > "$out"
-        echo "$out"
-    }
+   my-backup() {
+       local db="$1"
+       if [ -z "$db" ]; then
+           echo "USAGE: my-backup <database_name>" >&2
+           return 1
+       fi
+       local date=$(date +%F_%H%M%S)
+       local out="${db}_${date}.sql.gz"
+       mariadb-dump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --quick --lock-tables=false "$db" | gzip > "$out"
+       echo "$out"
+   }
 
-    my-backup-all() {
-        local date=$(date +%F_%H%M%S)
-        local out="all_databases_${date}.sql.gz"
-        mysql --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;" -N -B | grep -v -E '^(information_schema|performance_schema|mysql|sys)$' | xargs mysqldump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --databases | gzip > "$out"
-        echo "$out"
-    }
+   my-backup-all() {
+       local date=$(date +%F_%H%M%S)
+       local out="all_databases_${date}.sql.gz"
+       mariadb --defaults-extra-file=$HOME/.my.cnf -e "SHOW DATABASES;" -N -B | grep -v -E '^(information_schema|performance_schema|mysql|sys|mariadb)$' | xargs mariadb-dump --defaults-extra-file=$HOME/.my.cnf --single-transaction --routines --triggers --events --databases | gzip > "$out"
+       echo "$out"
+   }
 
-    my-restore() {
-        local file="$1"
-        local db="$2"
-        if [ -z "$file" ] || [ -z "$db" ]; then
-            echo "USAGE: my-restore <backup.sql.gz> <database_name>" >&2
-            return 1
-        fi
-        local confirm
-        read -p "Type '$db' to confirm restore: " confirm
-        if [ "$confirm" != "$db" ]; then
-            echo "CANCELLED" >&2
-            return 1
-        fi
-        if [[ "$file" == *.gz ]]; then
-            gunzip < "$file" | mysql --defaults-extra-file=$HOME/.my.cnf "$db"
-        else
-            mysql --defaults-extra-file=$HOME/.my.cnf "$db" < "$file"
-        fi
-    }
+   my-restore() {
+       local file="$1"
+       local db="$2"
+       if [ -z "$file" ] || [ -z "$db" ]; then
+           echo "USAGE: my-restore <backup.sql.gz> <database_name>" >&2
+           return 1
+       fi
+       local confirm
+       read -p "Type '$db' to confirm restore: " confirm
+       if [ "$confirm" != "$db" ]; then
+           echo "CANCELLED" >&2
+           return 1
+       fi
+       if [[ "$file" == *.gz ]]; then
+           gunzip < "$file" | mariadb --defaults-extra-file=$HOME/.my.cnf "$db"
+       else
+           mariadb --defaults-extra-file=$HOME/.my.cnf "$db" < "$file"
+       fi
+   }
 fi
 
 
