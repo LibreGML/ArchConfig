@@ -1538,9 +1538,14 @@ alias mvninstall='mvn clean install'
 alias mvncompile='mvn clean compile'
 alias mvnrun='mvn clean spring-boot:run -DskipTests'
 #Android
-alias buildapp='./gradlew build'
-alias cleanapp='./gradlew clean'
-alias runapp='./gradlew installDebug'
+_gradlew() {
+    test -x ./gradlew || chmod +x ./gradlew
+    ./gradlew "$@"
+}
+
+alias buildapp='_gradlew build'
+alias cleanapp='_gradlew clean'
+alias runapp='_gradlew installDebug'
 
 
 

@@ -1461,9 +1461,14 @@ if status is-interactive
     alias mvncompile='mvn clean compile'
     alias mvnrun='mvn clean spring-boot:run -DskipTests'
     
-    alias buildapp='./gradlew build'
-    alias cleanapp='./gradlew clean'
-    alias runapp='./gradlew installDebug'
+    function _gradlew
+        test -x ./gradlew || chmod +x ./gradlew
+        ./gradlew $argv
+    end
+
+    alias buildapp='_gradlew build'
+    alias cleanapp='_gradlew clean'
+    alias runapp='_gradlew installDebug'
     
     function buildwx
         if yarn run build:mp-weixin

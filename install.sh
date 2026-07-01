@@ -288,6 +288,8 @@ install_core_deps() {
         'waydroid'
         'waydroid-script-git'
         'dnsmasq'
+        'lrzsz'
+        'minicom'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
