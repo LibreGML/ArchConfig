@@ -77,28 +77,28 @@ if status is-interactive
 
     if command -q fresh
         set -x ED fresh
-        alias e='fresh'
-        alias vim='fresh'
-        alias nvim='fresh'
-        alias nano='fresh'
-        alias micro='fresh'
+        alias e='sudo fresh'
+        alias vim='sudo fresh'
+        alias nvim='sudo fresh'
+        alias nano='sudo fresh'
+        alias micro='sudo fresh'
     else if command -q vim
-        alias e='vim'
+        alias e='sudo vim'
     else if command -q vi
         set -x ED vi
-        alias e='vi'
+        alias e='sudo vi'
     else if command -q nano
         set -x ED nano
-        alias e='nano'
+        alias e='sudo nano'
     else if command -q micro
         set -x ED micro
-        alias e='micro'
+        alias e='sudo micro'
     end
 
-    alias zshrc="$ED $HOME/.zshrc"
-    alias fishrc="$ED $HOME/.config/fish/config.fish"
-    alias kittyconf="$ED $HOME/.config/kitty/kitty.conf"
-    alias hyprconf="$ED $HOME/.config/hypr/hyprland.lua"
+    alias zshrc="sudo $ED $HOME/.zshrc"
+    alias fishrc="sudo $ED $HOME/.config/fish/config.fish"
+    alias kittyconf="sudo $ED $HOME/.config/kitty/kitty.conf"
+    alias hyprconf="sudo $ED $HOME/.config/hypr/hyprland.lua"
 
     alias bashrc="sudo $ED /etc/bash.bashrc"
     alias pacmanconf="sudo $ED /etc/pacman.conf"

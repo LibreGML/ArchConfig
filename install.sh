@@ -255,10 +255,6 @@ install_core_deps() {
         'tealdeer'
         'syncthing'
         'httrack'
-        'tlp' 
-        'tlp-rdw'
-        'tlpui' 
-        'powertop' 
         'docker'
         'docker-compose'
         'lazydocker'
@@ -651,11 +647,6 @@ deploy_system_configs() {
         success "已部署 bash.bashrc"
     fi
 
-    if [ -f "$etc_source/tlp.conf" ]; then
-        sudo tee /etc/tlp.conf < "$etc_source/tlp.conf" > /dev/null
-        success "已部署 tlp.conf"
-    fi
-
     if [ -f "$etc_source/environment" ]; then
         sudo tee /etc/environment < "$etc_source/environment" > /dev/null
         success "已部署 environment"
@@ -896,29 +887,7 @@ runService() {
     fi
     
     local has_networkmanager=false
-    local has_tlp=false
-    local has_powertop=false
-    
     command -v NetworkManager >/dev/null 2>&1 && has_networkmanager=true
-    command -v tlp >/dev/null 2>&1 && has_tlp=true
-    command -v powertop >/dev/null 2>&1 && has_powertop=true
-    
-    if [ ! -f /etc/systemd/system/powertop.service ]; then
-        log "创建 Powertop 服务配置..."
-        sudo tee /etc/systemd/system/powertop.service > /dev/null << 'EOF'
-[Unit]
-Description=Powertop tunings
-After=multi-user.target
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/powertop --auto-tune
-
-[Install]
-WantedBy=multi-user.target
-EOF
-    fi
     
     if ! $systemd_running; then
         warning "=========================================="
@@ -929,8 +898,6 @@ EOF
         warning ""
         warning "重启后，以下服务将自动启用："
         $has_networkmanager && warning "  - NetworkManager"
-        $has_tlp && warning "  - TLP (电源管理)"
-        $has_powertop && warning "  - Powertop"
         warning ""
         warning "如需立即配置，请在重启后的真实系统中运行此脚本"
         warning "=========================================="
@@ -944,18 +911,6 @@ EOF
         sudo systemctl disable systemd-networkd-wait-online 2>/dev/null || true
         sudo systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
         sudo systemctl mask NetworkManager-wait-online.service 2>/dev/null || true
-        
-        sudo systemctl disable power-profiles-daemon.service 2>/dev/null || true
-        sudo systemctl mask systemd-rfkill.service 2>/dev/null || true
-        sudo systemctl mask systemd-rfkill.socket 2>/dev/null || true
-        
-        if $has_tlp; then
-            sudo systemctl enable tlp 2>/dev/null || warning "TLP 启用失败"
-        fi
-        
-        if [ -f /etc/systemd/system/powertop.service ]; then
-            sudo systemctl enable powertop.service 2>/dev/null || warning "powertop 启用失败"
-        fi
         
         sudo systemctl mask sleep.target 2>/dev/null || true
         sudo systemctl mask suspend.target 2>/dev/null || true
@@ -973,34 +928,11 @@ EOF
     if $has_networkmanager; then
         sudo systemctl enable --now NetworkManager || warning "NetworkManager 启动失败"
     fi
+    
     sudo systemctl disable systemd-networkd || true
     sudo systemctl disable systemd-networkd-wait-online || true
     sudo systemctl disable NetworkManager-wait-online.service || true
     sudo systemctl mask NetworkManager-wait-online.service || true
-    
-    log "配置电源管理服务..."
-    sudo systemctl disable --now power-profiles-daemon.service 2>/dev/null || true
-    sudo systemctl mask systemd-rfkill.service || true
-    sudo systemctl mask systemd-rfkill.socket || true
-    sudo systemctl stop systemd-rfkill.service 2>/dev/null || true
-    sudo systemctl stop systemd-rfkill.socket 2>/dev/null || true
-    
-    if $has_tlp; then
-        sudo systemctl enable --now tlp || warning "TLP 启动失败"
-    else
-        warning "TLP 未安装，跳过"
-    fi
-    
-    log "配置 Powertop 服务..."
-    if [ -f /etc/systemd/system/powertop.service ]; then
-        sudo systemctl daemon-reload || warning "systemctl daemon-reload 失败"
-        sudo systemctl enable --now powertop.service || warning "powertop 启动失败"
-    fi
-    
-    if $has_powertop; then
-        log "运行 Powertop 自动调优..."
-        sudo powertop --auto-tune 2>&1 | grep -v "modprobe.*failed" | grep -v "Failed to mount debugfs" || true
-    fi
     
     log "禁用休眠和睡眠目标..."
     sudo systemctl mask sleep.target || true
