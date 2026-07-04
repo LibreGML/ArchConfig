@@ -897,23 +897,18 @@ source ~/.zshrc
 
 ### 9.1 RTL8821 无线网卡驱动
 
-#### 方案一：更换损坏的驱动
-
 1. **黑名单旧驱动**
 
-编辑 `/etc/modprobe.d/blacklist-rtw88.conf`:
+编辑 `/etc/modprobe.d/blacklist.conf`:
 
 ```bash
-sudo nvim /etc/modprobe.d/blacklist-rtw88.conf
+sudo nvim /etc/modprobe.d/blacklist.conf
 ```
 
 添加以下内容:
 
 ```
 blacklist rtw88_8821ce
-blacklist rtw88_8821c
-blacklist rtw88_pci
-blacklist rtw88_core
 ```
 
 
@@ -929,131 +924,48 @@ yay -S rtl8821ce-dkms-git
 sudo mkinitcpio -P
 ```
 
-4. **更新 GRUB 并重启**
+4. **更新 GRUB **
 
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
-reboot
+
+poweroff # 关机一分钟再开机
+
 ```
 
-6. **验证驱动加载**
+5. **验证驱动加载**
 
 ```bash
 lsmod | grep -i 8821
 ```
 
+6. **优化WIFI连接**
+
+```
+# 1. 关闭 NetworkManager 连通性检测
+sudo mkdir -p /etc/NetworkManager/conf.d
+sudo micro /etc/NetworkManager/conf.d/99-disable-connectivity-check.conf
+# 写入：
+# [connectivity]
+# uri=
+# interval=0
+
+# 2. 禁用 MAC 地址随机化
+nmcli connection modify "@@SZJM_WLAN 1" 802-11-wireless.mac-address-randomization never
+
+# 3. 关闭 WiFi 电源管理
+sudo iw dev wlan0 set power_save off
+
+# 4. 持久化关闭电源管理
+echo 'ACTION=="add", SUBSYSTEM=="net", KERNEL=="wlan*", RUN+="/sbin/iw dev %k set power_save off"' | sudo tee /etc/udev/rules.d/99-wifi-powersave.rules
+
+# 5. 重启 NetworkManager
+sudo systemctl restart NetworkManager
+
+```
+
 > 注意, cachyOS等第三方内核由于安全策略，无法加载树外模块，只能用Linux主线内核。
 
-#### 方案二：排查驱动问题
-
-**步骤 1: 检查硬件识别**
-
-```bash
-lspci | grep -i network    # 或 lspci | grep -i 8821
-```
-
-如果没有输出，说明是硬件问题，检查:
-
-- 硬件连接
-- BIOS 中的无线开关
-
-记录 PCI 地址（如 `02:00.0`）。
-
-**步骤 2: 检查驱动加载状态**
-
-```bash
-lspci -k -s 02:00.0    # -s 指定 PCI 地址，-k 查看驱动信息
-```
-
-可能出现三种情况:
-
-1. 已加载驱动
-2. 显示 `(none)` 或 `UNCLAIMED`（无驱动）
-3. 显示驱动但网卡无法使用
-
-**步骤 3: 处理无驱动情况**
-
-```bash
-yay -S rtl8821ce-dkms-git    # 安装驱动
-```
-
-
-如果仍不行，查找驱动文件:
-
-```bash
-find /lib/modules/$(uname -r) -name "*8821*"
-```
-
-加载驱动:
-
-```bash
-sudo modprobe 8821ce
-sudo mkinitcpio -P
-```
-
-**步骤 4: 处理驱动加载但无法使用**
-
-检查固件错误:
-
-```bash
-dmesg | grep -iE "8821|rtw|wlan"
-```
-
-如果显示 "firmware not found"，安装固件:
-
-```bash
-sudo pacman -S linux-firmware
-```
-
-**步骤 5: 检查网络接口状态**
-
-```bash
-ip link show    # 查看 wlan0 状态
-```
-
-如果显示 `state DOWN`:
-
-```bash
-sudo ip link set wlan0 up
-```
-
-检查 NetworkManager:
-
-```bash
-systemctl status NetworkManager
-```
-
-检查射频锁定:
-
-```bash
-rfkill list    # 如果 Wireless LAN 显示 yes
-sudo rfkill unblock all
-```
-
-**步骤 6: 寻求社区帮助**
-
-如果以上方法都无效:
-
-1. 搜索资源:
-   - [落絮 - Arch Linux 中文社区](https://luoxu.archlinuxcn.org/)
-   - [Arch Wiki 中文版](https://wiki.archlinuxcn.org/wiki/)
-   - [Arch Linux 中文论坛](https://forum.archlinuxcn.org/)
-   - GitHub Issues
-   - Stack Overflow
-
-2. 向社区求助时提供完整日志:
-
-```bash
-uname -a && \
-lspci -nn | grep -i network && \
-lspci -k -s 02:00.0 && \
-lsmod | grep -iE "8821|rtw" && \
-dmesg | grep -iE "8821|rtw_8821ce|firmware|iwlwifi" | tail -30 && \
-ip link show && \
-rfkill list
-```
-
-将输出重定向到文件并附上问题描述。
 
 ---
 
