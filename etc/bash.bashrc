@@ -1041,7 +1041,7 @@ if command -v docker &>/dev/null; then
     alias drestart='docker restart'
     alias dkill='docker kill'
     alias drm='docker rm -f'
-    alias drun='docker run -it --rm'    
+    alias drun='docker run -it'    
     alias drmi='docker rmi -f'
     alias dbuild='docker build --no-cache -t'
     alias dpull='docker pull'
