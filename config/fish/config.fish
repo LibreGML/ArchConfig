@@ -1086,7 +1086,7 @@ if status is-interactive
         alias drestart='docker restart'
         alias dkill='docker kill'
         alias drm='docker rm -f'
-        alias drun='docker run -it --rm'
+        alias drun='docker run -it'
         alias dimages='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.ID}}"'
         alias drmi='docker rmi -f' 
         alias dbuild='docker build --no-cache -t'
