@@ -1034,6 +1034,7 @@ fi
 # =============================================================================
 
 if command -v docker &>/dev/null; then
+	alias d='docker'
     alias dex='docker exec -it'
     alias dlogs='docker logs -f --tail 100'
     alias dstart='docker start'
