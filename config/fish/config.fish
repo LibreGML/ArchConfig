@@ -1077,6 +1077,7 @@ if status is-interactive
     # ==========================================
 
     if command -q docker
+        alias d='docker'
         alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"'
         alias dpsa='docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"'
         alias dex='docker exec -it'
