@@ -172,7 +172,12 @@ install_core_deps() {
         'awww'                 
         'cliphist'             
         'wl-clip-persist'        
-        'fastfetch'            
+        'fastfetch'
+        'wireplumber'
+        'pipewire'
+        'pipewire-audio'
+        'pipewire-pulse'
+        'pamixer'            
         'pyprland'             
         'wlogout'               
         'firefox'
@@ -216,15 +221,16 @@ install_core_deps() {
         'wireplumber'
         'libwireplumber'
         'mesa'
-        'vulkan-radeon'
+        'vulkan-intel'
+    	'intel-media-driver'
+	    'libva-intel-driver'
         'lib32-mesa'
-        'lib32-vulkan-radeon'
-        'xf86-video-amdgpu'
+        'lib32-vulkan-intel'
         'qt5-quickcontrols2'
         'qt5ct'
         'qt6-wayland'
         'qt6ct'
-        'amd-ucode'
+        'intel-ucode'
         'btrfs-progs'
         'pacman-contrib'
         'bluez'
@@ -235,7 +241,6 @@ install_core_deps() {
         'cups'
         'cups-filters'
         'ghostscript'
-        'tree'
         'imagemagick'
         'pbzip2'
         'pigz'
@@ -246,18 +251,13 @@ install_core_deps() {
         'tumbler'
         'mpv'
         'mpv-mpris'
-        'loupe'
         'ffmpeg'
         'ffmpegthumbnailer'
-        'net-tools'
         'libspng'
         'obs-studio'
-        'tealdeer'
         'syncthing'
-        'httrack'
         'docker'
         'docker-compose'
-        'lazydocker'
         'localsend'
         'nginx'
         'hyprshot'
@@ -280,12 +280,6 @@ install_core_deps() {
         'git-lfs'
         'gnome-keyring'
         'fresh-editor-bin'
-        'python-pyclip'
-        'waydroid'
-        'waydroid-script-git'
-        'dnsmasq'
-        'lrzsz'
-        'minicom'
     )
     
     log "正在安装 ${#deps[@]} 个核心包..."
@@ -401,8 +395,6 @@ install_optional_deps() {
     log "=========================================="
     
     local opt_deps=(
-        'visual-studio-code-bin'
-        'android-studio'
         'wechat-bin'
     )
     
@@ -662,9 +654,15 @@ deploy_system_configs() {
         success "已部署 safe-rm.conf"
     fi
     
-    if [ -f "$etc_source/zram-generator.conf" ]; then
-        sudo tee /etc/zram-generator.conf < "$etc_source/zram-generator.conf" > /dev/null
+    if [ -f "$etc_source/systemd/zram-generator.conf" ]; then
+        sudo tee /etc/systemd/zram-generator.conf < "$etc_source/systemd/zram-generator.conf" > /dev/null
         success "已部署 zram-generator.conf"
+    fi
+    
+    
+    if [ -f "$etc_source/pam.d/hyprlock" ]; then
+        sudo tee /etc/pam.d/hyprlock < "$etc_source/pam.d/hyprlock" > /dev/null
+        success "已部署 pam.d 的 hyprlock 认证配置"
     fi
     
 
@@ -795,7 +793,7 @@ deploy_configs() {
             for wallpaper in "${wallpaper_files[@]}"; do
                 if [ -f "$wallpaper" ]; then
                     local filename=$(basename "$wallpaper")
-                    create_symlink "$wallpaper" "$CURRENT_USER_HOME/Pictures/wallpapers/$filename"
+                    cp "$wallpaper" "$CURRENT_USER_HOME/Pictures/wallpapers/$filename"
                 fi
             done
             success "已部署 ${#wallpaper_files[@]} 个壁纸文件"
@@ -918,7 +916,8 @@ runService() {
         sudo systemctl mask hybrid-sleep.target 2>/dev/null || true
         
         log "开启 zram（将在重启后生效）..."
-        sudo systemctl enable systemd-zram-setup@zram0.service 2>/dev/null || warning "zram 启用失败"
+        sudo systemctl daemon-reload
+        sudo systemctl start systemd-zram-setup@zram0.service || warning "zram 启动失败"
         
         success "系统服务配置完成（将在重启后生效）"
         return 0
@@ -941,7 +940,11 @@ runService() {
     sudo systemctl mask hybrid-sleep.target || true
     
     log "开启 zram..."
-    sudo systemctl enable --now systemd-zram-setup@zram0.service || warning "zram 启动失败"
+    sudo systemctl daemon-reload
+    sudo systemctl start systemd-zram-setup@zram0.service || warning "zram 启动失败"
+    
+    log "配置音频服务..."
+    systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
     
     success "系统服务配置完成"
 }

@@ -128,7 +128,6 @@ hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 -- ── Pyprland ──
 hl.bind("SUPER + K", hl.dsp.exec_cmd("pypr toggle term"))
 hl.bind("SUPER + Z", hl.dsp.exec_cmd("pypr zoom"))
-hl.bind("SUPER + R", hl.dsp.exec_cmd("pypr toggle run"))
 
 -- ── 媒体控制 ──
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(scriptsDir .. "/Volume.sh --inc"), { repeating = true })
@@ -159,17 +158,16 @@ hl.bind("SHIFT + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- ── 滚动布局 ──
 hl.bind("SUPER + equal", hl.dsp.layout("colresize +0.1"))
 hl.bind("SUPER + minus", hl.dsp.layout("colresize -0.1")) 
-hl.bind("SUPER + SHIFT + Return", hl.dsp.layout("consume_or_expel next"))
+hl.bind("SUPER + right", hl.dsp.layout("move +col"))
+hl.bind("SUPER + left", hl.dsp.layout("move -col"))
+
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- 触摸板手势
 -- ══════════════════════════════════════════════════════════════════════════════
 
-hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
-hl.gesture({ fingers = 3, direction = "up", action = function() hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) end })
-hl.gesture({ fingers = 3, direction = "down", action = function() hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) end })
-hl.gesture({ fingers = 3, direction = "down", mods = "CTRL", action = "close" })
-hl.gesture({ fingers = 4, direction = "horizontal", action = "scroll_move" })
+hl.gesture({ fingers = 3, direction = "horizontal", action = "scroll_move" })
+hl.gesture({ fingers = 3, direction = "horizontal", mods = "CTRL", action = "workspace" })
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -180,10 +178,6 @@ hl.gesture({ fingers = 4, direction = "horizontal", action = "scroll_move" })
 hl.bind("XF86KbdBrightnessDown", hl.dsp.exec_cmd(scriptsDir .. "/BrightnessKbd.sh --dec"), { repeating = true })
 hl.bind("XF86KbdBrightnessUp", hl.dsp.exec_cmd(scriptsDir .. "/BrightnessKbd.sh --inc"), { repeating = true })
 
--- ── ASUS 专用键 ──
-hl.bind("XF86Launch1", hl.dsp.exec_cmd("rog-control-center"))
-hl.bind("XF86Launch3", hl.dsp.exec_cmd("asusctl led-mode -n"))
-hl.bind("XF86Launch4", hl.dsp.exec_cmd("asusctl profile -n"))
 
 -- ── 屏幕亮度 ──
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(scriptsDir .. "/Brightness.sh --dec"), { repeating = true })
@@ -199,8 +193,6 @@ hl.bind("SUPER + CTRL + F6", hl.dsp.exec_cmd(scriptsDir .. "/ScreenShot.sh --in5
 hl.bind("SUPER + ALT + F6", hl.dsp.exec_cmd(scriptsDir .. "/ScreenShot.sh --in10"))
 hl.bind("ALT + F6", hl.dsp.exec_cmd(scriptsDir .. "/ScreenShot.sh --active"))
 
--- ── 触摸板设备设置 ──
-hl.device({ name = "syna3255:00-06cb:7f28-touchpad", enabled = true })
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -251,7 +243,7 @@ hl.config({ decoration = { rounding = 20, active_opacity = 0.87, inactive_opacit
 -- 布局、输入、杂项、分组、绑定、XWayland、光标配置
 -- ══════════════════════════════════════════════════════════════════════════════
 
-hl.config({ dwindle = { preserve_split = true, special_scale_factor = 0.8 } })
+hl.config({ dwindle = { preserve_split = true } })
 hl.config({ master = { new_status = "master", new_on_top = true, mfact = 0.5 } })
 hl.config({ scrolling = { column_width = 0.45 } })
 
@@ -262,7 +254,7 @@ hl.config({ input = { kb_layout = "us", kb_variant = "", kb_model = "", kb_optio
 
 hl.config({ group = { col = { border_active = Colors.color15 }, groupbar = { col = { active = Colors.color0 } } } })
 
-hl.config({ misc = { disable_hyprland_logo = true, disable_splash_rendering = true, mouse_move_enables_dpms = true, enable_swallow = true, swallow_regex = "^(kitty)$", focus_on_activate = false, initial_workspace_tracking = 0, middle_click_paste = false } })
+hl.config({ misc = { disable_hyprland_logo = true, disable_splash_rendering = true, mouse_move_enables_dpms = true, focus_on_activate = false, initial_workspace_tracking = 0, middle_click_paste = false } })
 
 hl.config({ binds = { workspace_back_and_forth = true, allow_workspace_cycles = true, pass_mouse_when_bound = false } })
 
@@ -276,10 +268,8 @@ hl.config({ cursor = { no_hardware_cursors = false, enable_hyprcursor = true, wa
 -- 窗口规则
 -- ══════════════════════════════════════════════════════════════════════════════
 
-hl.window_rule({ name = "kitty-run-style", match = { class = "^(kitty-run)$" }, border_size = 2, rounding = 10 })
-
 --  ── Scrolling布局窗口规则 ──
-hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.5 })
+hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.7, fullscreen_state = 0 })
 hl.window_rule({ name = "browser_width", match = { class = "^(firefox)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "code_width", match = { class = "^(code)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "office_width", match = { class = "^(ONLYOFFICE)$" }, scrolling_width = 0.7 })

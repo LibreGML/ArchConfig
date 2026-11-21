@@ -909,6 +909,7 @@ if command -v eza &>/dev/null; then
     alias lsa='eza -lbagR --icons'
     alias lst='eza -lTabgh --icons'
     alias sl='eza --icons'
+    alias tree='eza --tree --level=3 --icons --group-directories-first'
 elif command -v exa &>/dev/null; then
     alias ls='exa --color=auto --icons --group-directories-first'
     alias l='exa -lbah --icons'

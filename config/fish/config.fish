@@ -1409,6 +1409,7 @@ if status is-interactive
         alias ll="eza -lbg --icons"
         alias lsa="eza -lbagR --icons"
         alias lst="eza -lTabgh --icons"
+	alias tree='eza --tree --level=3 --icons --group-directories-first'
     end
     
     # ==========================================
