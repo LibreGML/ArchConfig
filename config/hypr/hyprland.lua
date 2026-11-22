@@ -166,8 +166,7 @@ hl.bind("SUPER + left", hl.dsp.layout("move -col"))
 -- 触摸板手势
 -- ══════════════════════════════════════════════════════════════════════════════
 
-hl.gesture({ fingers = 3, direction = "horizontal", action = "scroll_move" })
-hl.gesture({ fingers = 3, direction = "horizontal", mods = "CTRL", action = "workspace" })
+hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -269,7 +268,7 @@ hl.config({ cursor = { no_hardware_cursors = false, enable_hyprcursor = true, wa
 -- ══════════════════════════════════════════════════════════════════════════════
 
 --  ── Scrolling布局窗口规则 ──
-hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.7, fullscreen_state = 0 })
+hl.window_rule({ name = "term_width", match = { class = "^(kitty)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "browser_width", match = { class = "^(firefox)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "code_width", match = { class = "^(code)$" }, scrolling_width = 0.7 })
 hl.window_rule({ name = "office_width", match = { class = "^(ONLYOFFICE)$" }, scrolling_width = 0.7 })

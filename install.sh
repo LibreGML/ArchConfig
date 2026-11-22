@@ -189,6 +189,7 @@ install_core_deps() {
         'noto-fonts'
         'noto-fonts-cjk'
         'noto-fonts-emoji'
+        'ttf-dejavu'
         'hyprpicker'
         'eza'
         'ripgrep'
