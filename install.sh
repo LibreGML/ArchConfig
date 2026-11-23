@@ -192,6 +192,8 @@ install_core_deps() {
         'ttf-dejavu'
         'hyprpicker'
         'eza'
+        'scrcpy'
+        'bind'
         'ripgrep'
         'nodejs'
         'npm'
