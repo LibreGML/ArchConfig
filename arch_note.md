@@ -420,26 +420,8 @@ reboot          # 重启
 
 ---
 
-## 桌面环境配置
 
-### 3.1 安装 Hyprland
-
-```bash
-git clone --depth=1 https://github.com/JaKooLit/Arch-Hyprland.git
-cd Arch-Hyprland
-chmod +x install.sh
-./install.sh
-```
-
-### 3.2 应用自定义配置
-
-克隆我的配置仓库:
-
-```bash
-git clone https://github.com/LibreGML/ArchConfig.git
-```
-
-#### 配置 SDDM 主题
+### 配置 SDDM 主题
 
 ```bash
 # 复制 SDDM 主题到系统目录
@@ -462,7 +444,7 @@ Current=simple_sddm_2    # 主题文件夹名称
 sudo systemctl restart sddm
 ```
 
-#### 配置 GRUB 主题
+### 配置 GRUB 主题
 
 ```bash
 # 复制 GRUB 主题

@@ -1403,13 +1403,13 @@ if status is-interactive
     # ==========================================
     
     if command -q eza
-        alias ls="eza --color=auto --icons"
-        alias l="eza -lbah --icons"
-        alias la="eza -labgh --icons"
-        alias ll="eza -lbg --icons"
-        alias lsa="eza -lbagR --icons"
-        alias lst="eza -lTabgh --icons"
-	alias tree='eza --tree --level=3 --icons --group-directories-first'
+        alias ls="eza --color=auto --icons=auto"
+        alias l="eza -lbah --icons=auto"
+        alias la="eza -labgh --icons=auto"
+        alias ll="eza -lbg --icons=auto"
+        alias lsa="eza -lbagR --icons=auto"
+        alias lst="eza -lTabgh --icons=auto"
+        alias tree='eza --tree --level=3 --icons=auto --group-directories-first'
     end
     
     # ==========================================

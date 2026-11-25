@@ -51,41 +51,43 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # =============================================================================
 # 安装并初始化 Git LFS
 # =============================================================================
-info "检查 Git LFS..."
+setup_git_lfs() {
+    info "检查 Git LFS..."
 
-if ! command -v git-lfs &> /dev/null; then
-    info "正在安装 git-lfs..."
-    if sudo pacman -S --noconfirm --needed git-lfs 2>/dev/null; then
+    if ! command -v git-lfs &> /dev/null; then
+        info "正在安装 git-lfs..."
+        if ! sudo pacman -S --noconfirm --needed git-lfs 2>/dev/null; then
+            error "git-lfs 安装失败，请手动安装: sudo pacman -S git-lfs"
+            return 1
+        fi
         success "git-lfs 安装成功"
     else
-        error "git-lfs 安装失败，请手动安装: sudo pacman -S git-lfs"
-        exit 1
+        success "git-lfs 已安装"
     fi
-else
-    success "git-lfs 已安装"
-fi
 
-cd "$SCRIPT_DIR" || { error "无法进入脚本目录: $SCRIPT_DIR"; exit 1; }
+    cd "$SCRIPT_DIR" || { error "无法进入脚本目录: $SCRIPT_DIR"; return 1; }
 
-if [ -d ".git" ] || git rev-parse --git-dir &> /dev/null; then
+    if [ ! -d ".git" ] && ! git rev-parse --git-dir &> /dev/null; then
+        warning "当前目录不是 Git 仓库，跳过 LFS 操作"
+        return 0
+    fi
+
     info "初始化 Git LFS..."
-    git lfs install --local 2>/dev/null || git lfs install
-    
-    info "拉取 LFS 文件..."
-    if git lfs pull; then
-        success "LFS 文件已同步"
-    else
-        error "Git LFS 拉取失败，大文件可能不完整"
-        error "请检查网络连接或仓库 LFS 配额"
-        exit 1
+    if ! { git lfs install --local 2>/dev/null || git lfs install; }; then
+        error "Git LFS 初始化失败"
+        return 1
     fi
-else
-    warning "当前目录不是 Git 仓库，跳过 LFS 操作"
-fi
 
+    info "拉取 LFS 文件..."
+    if ! git lfs pull; then
+        error "Git LFS 拉取失败，图标/主题为必需文件，终止安装"
+        error "请检查网络连接或仓库 LFS 配额，然后重跑"
+        return 1
+    fi
 
-
-
+    success "LFS 文件已同步"
+    return 0
+}
 
 # =============================================================================
 # 创建软链接函数（全局函数）
@@ -119,19 +121,18 @@ create_symlink() {
 # 检测 yay 是否安装
 # =============================================================================
 check_yay() {
-    if ! command -v yay &>/dev/null; then
-        log "未检测到 yay, 正在安装..."
-        if sudo pacman -S --noconfirm yay; then
-            success "yay 安装成功"
-            sudo pacman -Sy --noconfirm 2>/dev/null || true
-        else
-            error "yay 安装失败"
-            exit 1
-        fi
-    else
+    if command -v yay &>/dev/null; then
         success "yay 已安装"
+        return 0
     fi
+    if sudo pacman -S --noconfirm --needed yay 2>/dev/null; then
+        success "yay 安装成功"
+        return 0
+    fi
+    error "yay 安装失败：请确认 etc/pacman.conf 已启用 archlinuxcn，或手动装好 yay 后重跑"
+    return 1
 }
+
 
 # =============================================================================
 # 安装核心依赖
@@ -143,8 +144,9 @@ install_core_deps() {
     
     local deps=(
         'hyprland'             
-        'hyprlock'              
-        'hypridle'             
+        'hyprlock'
+        'hyprpicker'
+        'hypridle'
         'hyprland-guiutils'
         'hyprtoolkit'
         'hyprutils'
@@ -174,9 +176,12 @@ install_core_deps() {
         'wl-clip-persist'        
         'fastfetch'
         'wireplumber'
+        'libwireplumber'
         'pipewire'
         'pipewire-audio'
         'pipewire-pulse'
+        'pipewire-alsa'
+        'rtkit'
         'pamixer'            
         'pyprland'             
         'wlogout'               
@@ -190,7 +195,7 @@ install_core_deps() {
         'noto-fonts-cjk'
         'noto-fonts-emoji'
         'ttf-dejavu'
-        'hyprpicker'
+        'otf-font-awesome'
         'eza'
         'scrcpy'
         'bind'
@@ -198,7 +203,8 @@ install_core_deps() {
         'nodejs'
         'npm'
         'mariadb'
-        'jdk21-openjdk'
+        'jdk17-openjdk'
+        'go'
         'maven'
         'uv'
         'ntfs-3g'
@@ -219,10 +225,6 @@ install_core_deps() {
         'zram-generator'
         'alsa-firmware'
         'alsa-ucm-conf'
-        'pipewire'
-        'pipewire-alsa'
-        'wireplumber'
-        'libwireplumber'
         'mesa'
         'vulkan-intel'
     	'intel-media-driver'
@@ -275,13 +277,13 @@ install_core_deps() {
         'kvantum-qt5'
         'yad'
         'nwg-look'
-        'network-manager-applet'
         'gvfs-mtp'
         'gvfs'
         'brightnessctl'
         'unzip'
         'git-lfs'
         'gnome-keyring'
+        'usbutils'
         'fresh-editor-bin'
     )
     
@@ -335,7 +337,7 @@ install_core_deps() {
             log "尝试使用 pacman 官方仓库安装：$pkg"
             if sudo pacman -S --noconfirm --needed "$pkg" 2>/dev/null; then
                 if pacman -Qi "$pkg" &>/dev/null; then
-                    success "✓ 降级安装成功：$pkg"
+                    success "✓ 补装成功：$pkg"
                     installed=true
                 fi
             fi
@@ -369,7 +371,7 @@ install_core_deps() {
             
             if sudo pacman -S --noconfirm --needed "$pkg" 2>/dev/null; then
                 if pacman -Qi "$pkg" &>/dev/null; then
-                    success "✓ 降级安装成功：$pkg"
+                    success "✓ 补装成功：$pkg"
                     continue
                 fi
             fi
@@ -396,111 +398,79 @@ install_optional_deps() {
     log "=========================================="
     log "安装可选依赖（AUR 包）..."
     log "=========================================="
-    
+
     local opt_deps=(
         'wechat-bin'
+        'android-sdk-cmdline-tools-latest'
+        'wps-office-cn'
+        'ttf-wps-fonts'
+        'wps-office-fonts'
     )
-    
-    
+
     local failed_packages=()
     local retry_count=2
     local retry_interval=3
-    
+
     for dep_entry in "${opt_deps[@]}"; do
         if pacman -Qi "$dep_entry" &>/dev/null; then
             log "包已安装：$dep_entry"
             continue
         fi
-        
+
         log "安装：$dep_entry"
-        
         local attempt=1
         local installed=false
-        
+
         while [ $attempt -le $retry_count ]; do
             log "第 $attempt 次尝试安装：$dep_entry"
-            
-            if yay -S --noconfirm --answeredit=None --answerclean=All "$dep_entry" 2>/dev/null; then
-                if pacman -Qi "$dep_entry" &>/dev/null; then
-                    success "安装成功：$dep_entry"
-                    installed=true
-                    break
-                else
-                    error "安装验证失败：$dep_entry (第 $attempt 次尝试)"
-                fi
-            else
-                error "安装失败：$dep_entry (第 $attempt 次尝试)"
+            if yay -S --noconfirm --answeredit=None --answerclean=All "$dep_entry" 2>/dev/null \
+               && pacman -Qi "$dep_entry" &>/dev/null; then
+                success "安装成功：$dep_entry"
+                installed=true
+                break
             fi
-            
+            error "安装失败：$dep_entry (第 $attempt 次尝试)"
+
             if [ $attempt -lt $retry_count ]; then
                 log "等待 ${retry_interval} 秒后重试..."
                 sleep $retry_interval
             fi
-            
             ((attempt++))
         done
-        
-        if [ "$installed" = false ]; then
-            log "尝试使用 pacman 官方仓库安装：$dep_entry"
-            if sudo pacman -S --noconfirm --needed "$dep_entry" 2>/dev/null; then
-                if pacman -Qi "$dep_entry" &>/dev/null; then
-                    success "降级安装成功：$dep_entry"
-                    installed=true
-                fi
-            fi
-        fi
-        
+
         if [ "$installed" = false ]; then
             failed_packages+=("$dep_entry")
         fi
     done
-    
+
     if [ ${#failed_packages[@]} -gt 0 ]; then
-        warning "以下包安装失败："
-        printf '  - %s\n' "${failed_packages[@]}"
-        
         log "=========================================="
-        log "重新尝试安装失败的包（包括降级安装）..."
+        log "用 yay 再尝试一次失败的可选包..."
         log "=========================================="
-        
+
         local final_failed=()
-        
         for pkg in "${failed_packages[@]}"; do
             log "重新安装：$pkg"
-            
-            if yay -S --noconfirm --answeredit=None --answerclean=All "$pkg" 2>/dev/null; then
-                if pacman -Qi "$pkg" &>/dev/null; then
-                    success "重新安装成功：$pkg"
-                    continue
-                fi
+            if yay -S --noconfirm --answeredit=None --answerclean=All "$pkg" 2>/dev/null \
+               && pacman -Qi "$pkg" &>/dev/null; then
+                success "重新安装成功：$pkg"
+            else
+                error "最终仍然失败：$pkg"
+                final_failed+=("$pkg")
             fi
-            
-            if sudo pacman -S --noconfirm --needed "$pkg" 2>/dev/null; then
-                if pacman -Qi "$pkg" &>/dev/null; then
-                    success "降级安装成功：$pkg"
-                    continue
-                fi
-            fi
-            
-            error "最终仍然失败：$pkg"
-            final_failed+=("$pkg")
         done
-        
+
         if [ ${#final_failed[@]} -gt 0 ]; then
-            warning "最终以下包安装失败 (可能需要手动处理)："
+            warning "以下可选 AUR 包最终安装失败（不影响后续部署，可稍后手动补装）："
             printf '  - %s\n' "${final_failed[@]}"
-            return 1
+            warning "手动补装：yay -S <上面的包名>"
+            return 0
         fi
     fi
-    
+
     success "可选依赖安装完成"
     return 0
 }
-
-
-# =============================================================================
-# 部署配置文件
-# =============================================================================
 
 
 
@@ -521,7 +491,7 @@ deploy_fish() {
             log "检查并安装 fisher..."
             if ! fish -c "type fisher" &>/dev/null; then
                 log "安装 fisher 包管理器..."
-                if fish -c "sudo pacman -S fisher  && fisher install jorgebucaran/fisher" 2>/dev/null; then
+                if fish -c "sudo pacman -S --noconfirm fisher  && fisher install jorgebucaran/fisher" 2>/dev/null; then
                     success "fisher 安装成功"
                 elif fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher' 2>/dev/null; then
                     success "fisher 通过 curl 安装成功"
@@ -666,6 +636,29 @@ deploy_system_configs() {
     if [ -f "$etc_source/pam.d/hyprlock" ]; then
         sudo tee /etc/pam.d/hyprlock < "$etc_source/pam.d/hyprlock" > /dev/null
         success "已部署 pam.d 的 hyprlock 认证配置"
+    fi
+    
+    if [ -f "$etc_source/modprobe.d/rtw88.conf" ]; then
+        sudo mkdir -p /etc/modprobe.d
+        sudo tee /etc/modprobe.d/rtw88.conf < "$etc_source/modprobe.d/rtw88.conf" > /dev/null
+        success "已部署 rtw88.conf（禁用 deep LPS / ASPM）"
+
+        if [ -d /run/systemd/system ] && command -v mkinitcpio &>/dev/null; then
+            log "重建 initramfs 以纳入模块参数..."
+            sudo mkinitcpio -P || warning "mkinitcpio 失败，重启前请手动执行：sudo mkinitcpio -P"
+        elif [ -d /run/systemd/system ] && command -v dracut &>/dev/null; then
+            sudo dracut --regenerate-all --force || warning "dracut 重建失败，请手动执行"
+        else
+            warning "未检测到可用的 initramfs 工具或当前为容器环境"
+            warning "真实系统中重启前请手动执行：sudo mkinitcpio -P"
+        fi
+    fi
+
+    if [ -f "$etc_source/NetworkManager/conf.d/zz-wifi-powersave-off.conf" ]; then
+        sudo mkdir -p /etc/NetworkManager/conf.d
+        sudo tee /etc/NetworkManager/conf.d/zz-wifi-powersave-off.conf \
+            < "$etc_source/NetworkManager/conf.d/zz-wifi-powersave-off.conf" > /dev/null
+        success "已部署 Wi-Fi 省电关闭配置"
     fi
     
 
@@ -919,8 +912,8 @@ runService() {
         sudo systemctl mask hybrid-sleep.target 2>/dev/null || true
         
         log "开启 zram（将在重启后生效）..."
-        sudo systemctl daemon-reload
-        sudo systemctl start systemd-zram-setup@zram0.service || warning "zram 启动失败"
+        sudo systemctl daemon-reload 2>/dev/null || true
+        sudo systemctl start systemd-zram-setup@zram0.service 2>/dev/null || warning "zram 启动失败（容器环境可忽略）"
         
         success "系统服务配置完成（将在重启后生效）"
         return 0
@@ -929,6 +922,7 @@ runService() {
     log "配置网络管理服务..."
     if $has_networkmanager; then
         sudo systemctl enable --now NetworkManager || warning "NetworkManager 启动失败"
+        sudo systemctl reload NetworkManager || warning "NetworkManager reload 失败"
     fi
     
     sudo systemctl disable systemd-networkd || true
@@ -947,7 +941,7 @@ runService() {
     sudo systemctl start systemd-zram-setup@zram0.service || warning "zram 启动失败"
     
     log "配置音频服务..."
-    systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
+    systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service || warning "用户级音频服务启用失败，请手动启用"
     
     success "系统服务配置完成"
 }
@@ -976,6 +970,11 @@ deployhome() {
             cp -r "$file" "$CURRENT_USER_HOME/"
         fi
     done
+    
+    if [ -f "/usr/lib/office6/wpsoffice" ]; then
+        sudo chmod -x /usr/lib/office6/wpsoffice
+        success "已修复 wps office 关闭后仍留存问题"
+    fi
     
     if [ -f "$CURRENT_USER_HOME/dot_gtkrc-2.0" ]; then
         mv "$CURRENT_USER_HOME/dot_gtkrc-2.0" "$CURRENT_USER_HOME/.gtkrc-2.0"
@@ -1040,6 +1039,17 @@ main() {
     
     success "配置目录结构验证通过"
     
+    if [ -f "$SCRIPT_DIR/etc/pacman.conf" ]; then
+        log "提前部署 pacman.conf 并刷新软件源..."
+        sudo tee /etc/pacman.conf < "$SCRIPT_DIR/etc/pacman.conf" > /dev/null
+        sudo pacman -Sy --noconfirm || warning "刷新软件源失败，继续安装"
+    fi
+    
+    if ! setup_git_lfs; then
+        error "Git LFS 准备失败，配置尚未部署"
+        exit 1
+    fi
+    
     if ! check_yay; then
         error "yay 检查或安装失败，终止安装"
         exit 1
@@ -1084,10 +1094,10 @@ main() {
     success "安装完成！建议重启系统以使所有更改生效"
     echo "=========================================="
     echo ""
-    warning "1. VSCode、GTK/QT主题、Firefox、系统服务、开发环境 需要手动配置"
-    warning "2. 非Arch需手动去 https://font.subf.dev/en/download 下载字体,"
-    warning "   再解压到 ~/.local/share/fonts/MapleMono-NF-CN/，再 fc-cache -fv ~/.local/share/fonts"
+    warning "1. GTK/QT主题、Firefox、系统服务、开发环境 需要手动配置"
     warning "   在部分屏幕下，rofi字体可能过小，需要去 ~/.config/rofi/config.rasi 改字体大小"
+    warning "2. Arch 已通过 AUR 安装 ttf-maplemono-nf-cn；非 Arch 请到 https://font.subf.dev/en/download"
+    warning "   下载自定义构建并解压到 ~/.local/share/fonts/MapleMono-NF-CN/，再 fc-cache -fv"
     
     if command -v grub-mkconfig &> /dev/null && [ -d "/boot/grub" ]; then
         log "3. GRUB 已检测到，配置已自动更新"

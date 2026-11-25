@@ -902,20 +902,14 @@ PROMPT_COMMAND='__set_prompt'
 # =============================================================================
 
 if command -v eza &>/dev/null; then
-    alias ls='eza --color=auto --icons --group-directories-first'
-    alias l='eza -lbah --icons'
-    alias ll='eza -lbg --icons'
-    alias la='eza -labgh --icons'
-    alias lsa='eza -lbagR --icons'
-    alias lst='eza -lTabgh --icons'
-    alias sl='eza --icons'
-    alias tree='eza --tree --level=3 --icons --group-directories-first'
-elif command -v exa &>/dev/null; then
-    alias ls='exa --color=auto --icons --group-directories-first'
-    alias l='exa -lbah --icons'
-    alias ll='exa -lbg --icons'
-    alias la='exa -labgh --icons'
-    alias sl='exa --icons'
+    alias ls='eza --color=auto --icons=auto --group-directories-first'
+    alias l='eza -lbah --icons=auto'
+    alias ll='eza -lbg --icons=auto'
+    alias la='eza -labgh --icons=auto'
+    alias lsa='eza -lbagR --icons=auto'
+    alias lst='eza -lTabgh --icons=auto'
+    alias sl='eza --icons=auto'
+    alias tree='eza --tree --level=3 --icons=auto --group-directories-first'
 else
     alias ls='ls --color=auto -v -p --group-directories-first'
     alias l='ls -lh'
